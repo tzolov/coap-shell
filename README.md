@@ -2,8 +2,8 @@
 Java based, Command Line Interface for Constrained Application Protocol ([CoAP](https://en.wikipedia.org/wiki/Constrained_Application_Protocol)). Can be connected to any `coap:` or `coaps:` enabled nodes. Works over plain or [DTLS](https://en.wikipedia.org/wiki/Datagram_Transport_Layer_Security) secured transports.
 Can be used to explore the `IKEA TRÅDFRI Gateway` as well.
 
-Shell's is implemented upon [Spring Shell](https://projects.spring.io/spring-shell/), [Californium (Cf)](https://www.eclipse.org/californium/) and [Scandium (Sc)](https://www.eclipse.org/californium/).
-Project uses the `SpringBoot`s programming model and produces single self-executable jar that can be used in any Java8 enabled environment.  
+Build upon the [Spring Shell](https://projects.spring.io/spring-shell/), [Californium (Cf)](https://www.eclipse.org/californium/) and [Scandium (Sc)](https://www.eclipse.org/californium/), 
+the project leverages the [SpringBoot](https://spring.io/projects/spring-boot) programming model and produces a single self-executable jar. Later can be used in any Java8 enabled environment.  
 
 The CoAP is a REST based web transfer protocol specialized for use with constrained nodes and constrained networks in the Internet of Things (IoT).
 
@@ -83,14 +83,13 @@ CoAP GET: coaps://californium.eclipse.org:5684/multi-format
 #### How to Build
 Clone the project from GitHub and build with Maven.
 ```bash
-git clone <todo> coap-shelll
+git clone https://github.com/tzolov/coap-shell.git
 cd ./coap-shell
 ./mvnw clean install
 ```
 Then run the self-executable jar in the `target` folder.
 
 ### Debugging
-
 Start the shell with `--logging.level=DEBUG` to enable debug log level for the entire application
  or `--logging.level.org.eclipse.californium=DEBUG` to debug only californium and scandium. Later
  is useful to debug the CoAP request message and DTLS interactions.
