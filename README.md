@@ -1,11 +1,11 @@
 # CoAP Shell
-Java based, Command Line Interface for Constrained Application Protocol ([CoAP](https://en.wikipedia.org/wiki/Constrained_Application_Protocol)). Can be connected to any `coap:` or `coaps:` enabled nodes. Works over plain or [DTLS](https://en.wikipedia.org/wiki/Datagram_Transport_Layer_Security) secured transports.
-(Shell can be used to explore the `IKEA TRÅDFRI Gateway` as well). [ ![Download](https://api.bintray.com/packages/big-data/maven/coap-shell/images/download.svg) ](https://bintray.com/big-data/maven/coap-shell/_latestVersion)
+([CoAP](https://en.wikipedia.org/wiki/Constrained_Application_Protocol)) is a REST based web transfer protocol specialized for use with constrained nodes and constrained networks in the Internet of Things (IoT).
+The `Caop Shell` Java based, Command Line Interface for interacting with CoAP resources. Shell can be used with un-secured `coap:` and secured `coaps:` ([DTLS](https://en.wikipedia.org/wiki/Datagram_Transport_Layer_Security)) transports. 
+The Shell can be used to explore the `IKEA TRÅDFRI Gateway` as well!. [ ![Download](https://api.bintray.com/packages/big-data/maven/coap-shell/images/download.svg) ](https://bintray.com/big-data/maven/coap-shell/_latestVersion)
 
 Build upon the [Spring Shell](https://projects.spring.io/spring-shell/), [Californium (Cf)](https://www.eclipse.org/californium/) and [Scandium (Sc)](https://www.eclipse.org/californium/), 
 the project leverages the [SpringBoot](https://spring.io/projects/spring-boot) programming model and produces a single self-executable jar. Later can be used in any Java8 enabled environment.  
 
-The CoAP is a REST based web transfer protocol specialized for use with constrained nodes and constrained networks in the Internet of Things (IoT).
 
 ![CoAP Shell Demo](https://raw.githubusercontent.com/tzolov/coap-shell/master/src/test/resources/coap-shell-dem-overview.gif)
 
