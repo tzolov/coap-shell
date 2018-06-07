@@ -16,6 +16,7 @@
 
 package io.datalake.coap.coapshell.provider;
 
+import io.datalake.coap.coapshell.CoapConnectionStatus;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStyle;
 
@@ -30,22 +31,34 @@ import org.springframework.util.StringUtils;
 @Component
 public class CoapShellPromptProvider implements PromptProvider {
 
-	private String connection;
+	private CoapConnectionStatus connectionStatus;
 
 	@Override
 	public AttributedString getPrompt() {
-		if (StringUtils.hasText(connection)) {
-			return new AttributedString(connection + ":>",
+		if (this.connectionStatus != null && StringUtils.hasText(this.connectionStatus.getBaseUri())) {
+			return new AttributedString(this.promptPrefix() + ":>",
 					AttributedStyle.DEFAULT.foreground(AttributedStyle.YELLOW));
 		}
 		else {
-			return new AttributedString("unconnected:>",
-					AttributedStyle.DEFAULT.foreground(AttributedStyle.RED));
+			return new AttributedString("server-unknown:>",
+					AttributedStyle.DEFAULT.foreground(AttributedStyle.YELLOW));
 		}
 	}
 
 	@EventListener
-	public void handle(String connectionUri) {
-		this.connection = connectionUri;
+	public void handle(CoapConnectionStatus connectionStatus) {
+		this.connectionStatus = connectionStatus;
+	}
+
+	private String promptPrefix() {
+		StringBuffer sb = new StringBuffer();
+		sb.append(this.connectionStatus.getBaseUri());
+		if (this.connectionStatus.getMode() != CoapConnectionStatus.RequestMode.con) {
+			sb.append("[").append(this.connectionStatus.getMode().name().toUpperCase()).append("]");
+		}
+		if (this.connectionStatus.isObserveActivated()) {
+			sb.append("[OBS]");
+		}
+		return sb.toString();
 	}
 }

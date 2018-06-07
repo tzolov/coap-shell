@@ -23,12 +23,10 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import io.datalake.coap.coapshell.CoapConnectionStatus;
 import io.datalake.coap.coapshell.provider.ContentTypeValueProvider;
 import io.datalake.coap.coapshell.provider.DiscoveryQueryValueProvider;
 import io.datalake.coap.coapshell.provider.UriPathValueProvider;
@@ -40,7 +38,6 @@ import org.eclipse.californium.core.CoapHandler;
 import org.eclipse.californium.core.CoapObserveRelation;
 import org.eclipse.californium.core.CoapResponse;
 import org.eclipse.californium.core.WebLink;
-import org.eclipse.californium.core.coap.CoAP;
 import org.eclipse.californium.core.coap.MediaTypeRegistry;
 import org.eclipse.californium.core.network.CoapEndpoint;
 import org.eclipse.californium.core.network.config.NetworkConfig;
@@ -80,24 +77,20 @@ import static io.datalake.coap.coapshell.util.PrintUtils.red;
 public class CoapShellCommands implements ApplicationEventPublisherAware {
 
 	public static final String COAP_TEXT_PLAIN = "" + MediaTypeRegistry.TEXT_PLAIN;
-	public static final String SHELL_CONNECTIVITY_GROUP = "Server Connectivity";
+	public static final String SHELL_CONNECTIVITY_GROUP = "CoAP Server Connectivity";
 	public static final String SHELL_COAP_REST_COMMANDS_GROUP = "CoAP Commands";
 	public static final String COAP_SHELL_CONFIGURATION_GROUP = "CoAP Configuration";
-	public static final int DEFAULT_TCP_CONNECTION_IDLE_TIMEOUT = 60 * 10; // 10 min [sec]
+	public static final int DEFAULT_TCP_CONNECTION_IDLE_TIMEOUT = 60 * 30; // 30 min [sec]
 
 	private CoapClient coapClient;
 	private ApplicationEventPublisher eventPublisher;
 	private CoapObserveRelation observeRelation;
-	private String observeURI;
+	private CoapConnectionStatus connectionStatus = new CoapConnectionStatus();
 
 	private StringBuilder observerResponses = new StringBuilder();
 
 	@Autowired
 	private UriPathValueProvider coapUriPathValueProvider;
-
-	public enum RequestMode {con, non}
-
-	private RequestMode requestMessageType = RequestMode.con;
 
 	@Autowired
 	private CoapDtlsSupport dtsl;
@@ -136,12 +129,18 @@ public class CoapShellCommands implements ApplicationEventPublisherAware {
 
 			this.coapClient.setEndpoint(coapEndpoint);
 		}
-		this.requestMessageType = RequestMode.con;
-		String resourceUri = this.coapClient.getURI();
-		if (resourceUri != null) {
-			this.eventPublisher.publishEvent(resourceUri + "[" + this.requestMessageType.name().toUpperCase() + "]");
+
+		if (this.coapClient.getURI() != null) {
+			this.connectionStatus
+					.setBaseUri(this.coapClient.getURI())
+					.setMode(CoapConnectionStatus.RequestMode.con)
+					.setIdentity(identity)
+					.setSecret(secret)
+					.setObservedUri(null);
+
+			this.eventPublisher.publishEvent(this.connectionStatus);
 		}
-		return "Connected to [" + resourceUri + "]";
+		return "Connected to " + this.connectionStatus;
 	}
 
 	@ShellMethod(value = "Check CoAP resources availability", group = SHELL_CONNECTIVITY_GROUP)
@@ -160,7 +159,7 @@ public class CoapShellCommands implements ApplicationEventPublisherAware {
 		}
 	}
 
-	@ShellMethod(value = "Disconnect CoAP client", group = SHELL_CONNECTIVITY_GROUP)
+	@ShellMethod(value = "Disconnect from the CoAP server", group = SHELL_CONNECTIVITY_GROUP)
 	@ShellMethodAvailability("availabilityCheck")
 	public String shutdown() {
 		if (observerAvailabilityCheck().isAvailable() && this.observeRelation != null) {
@@ -172,7 +171,8 @@ public class CoapShellCommands implements ApplicationEventPublisherAware {
 		this.coapClient.shutdown();
 		this.coapUriPathValueProvider.updateHints(new ArrayList<>());
 		this.coapClient = null;
-		this.eventPublisher.publishEvent("");
+		this.connectionStatus.reset();
+		this.eventPublisher.publishEvent(this.connectionStatus);
 		return "Client disconnected!";
 	}
 
@@ -229,17 +229,22 @@ public class CoapShellCommands implements ApplicationEventPublisherAware {
 		return list.stream().collect(Collectors.joining(", "));
 	}
 
-	@ShellMethod(key = "config use", value = "Let the client use Confirmable or Non-Confirmable requests.", group = COAP_SHELL_CONFIGURATION_GROUP)
+	@ShellMethod(key = "message acknowledgement", value = "Enables/Disables message acknowledgement",
+			group = SHELL_CONNECTIVITY_GROUP)
 	@ShellMethodAvailability("availabilityCheck")
-	public void configUse(@ShellOption(defaultValue = "con") RequestMode mode) {
-		this.requestMessageType = mode;
-		switch (mode) {
-		case con:
-			this.coapClient.useCONs(); break;
-		case non:
-			this.coapClient.useNONs(); break;
+	public String messageAcknowledgement(
+			@ShellOption(value = "disabled", defaultValue = "false") boolean disabled) {
+
+		if (disabled) {
+			this.coapClient.useCONs();
 		}
-		this.eventPublisher.publishEvent(this.coapClient.getURI() + "[" + this.requestMessageType.name().toUpperCase() + "]");
+		else {
+			this.coapClient.useNONs();
+		}
+		this.connectionStatus.setMode((
+				disabled == false) ? CoapConnectionStatus.RequestMode.con : CoapConnectionStatus.RequestMode.non);
+		this.eventPublisher.publishEvent(this.connectionStatus);
+		return "";
 	}
 
 	@ShellMethod("Request data from CoAP Resource")
@@ -381,24 +386,25 @@ public class CoapShellCommands implements ApplicationEventPublisherAware {
 		try {
 			this.coapClient.setURI(this.coapClient.getURI() + path);
 			result.append(requestInfo("OBSERVE Start", baseUri + path, false));
-			this.observeURI = baseUri + path;
+			this.connectionStatus.setObservedUri(baseUri + path);
 
 			CoapHandler handler = new CoapHandler() {
 				@Override
 				public void onLoad(CoapResponse response) {
 					observerResponses
-							.append(cyan("OBSERVE Response (" + observeURI + "):")).append(StringUtil.lineSeparator())
+							.append(cyan("OBSERVE Response (" + connectionStatus.getObservedUri() + "):")).append(StringUtil.lineSeparator())
 							.append(cyan(PrintUtils.prettyPrint(response))).append(StringUtil.lineSeparator());
 				}
 
 				@Override
 				public void onError() {
 					observerResponses
-							.append(red("OBSERVE Error (" + observeURI + "):")).append(StringUtil.lineSeparator());
+							.append(red("OBSERVE Error (" + connectionStatus.getObservedUri() + "):")).append(StringUtil.lineSeparator());
 				}
 			};
 
 			this.observeRelation = this.coapClient.observe(handler, coapContentType(accept));
+			this.eventPublisher.publishEvent(this.connectionStatus.setObservedUri(null));
 		}
 		finally {
 			this.coapClient.setURI(baseUri);
@@ -419,7 +425,9 @@ public class CoapShellCommands implements ApplicationEventPublisherAware {
 		if (this.observeRelation != null && !this.observeRelation.isCanceled()) {
 			this.observeRelation.proactiveCancel();
 			this.observerResponses = new StringBuilder();
-			return cyan("OBSERVE stopped (" + observeURI + ")");
+			String response = "OBSERVE stopped (" + this.connectionStatus.getObservedUri() + ")";
+			this.eventPublisher.publishEvent(this.connectionStatus.setObservedUri(null));
+			return cyan(response);
 		}
 		return red("NO observer to stop");
 	}
@@ -453,7 +461,8 @@ public class CoapShellCommands implements ApplicationEventPublisherAware {
 	}
 
 	private String requestInfo(String method, String path, boolean async) {
-		return cyan("CoAP " + method.toUpperCase() + (async ? "[ASYNC]" : "") + ": " + path + StringUtil.lineSeparator);
+		return cyan("CoAP " + method.toUpperCase() +
+				(async ? "[ASYNC]" : "") + ": " + path + StringUtil.lineSeparator);
 	}
 
 	/**

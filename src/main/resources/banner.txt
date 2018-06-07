@@ -1,6 +1,6 @@
-${AnsiColor.YELLOW}
+${AnsiColor.GREEN}
   _____     ___   ___     ______       ____
  / ___/__  / _ | / _ \   / __/ /  ___ / / /
 / /__/ _ \/ __ |/ ___/  _\ \/ _ \/ -_) / /
 \___/\___/_/ |_/_/     /___/_//_/\__/_/_/
-${AnsiColor.GREEN}${application.title}${application.formatted-version} iot.datalake.io${Ansi.DEFAULT}
+${AnsiColor.GREEN}${application.title}${application.formatted-version} ${Ansi.DEFAULT}

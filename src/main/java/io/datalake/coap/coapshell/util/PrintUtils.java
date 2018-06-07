@@ -49,6 +49,11 @@ public class PrintUtils {
 	 * @return the pretty print
 	 */
 	public static String prettyPrint(CoapResponse coapResponse) {
+
+		if (coapResponse == null) {
+			return red("NULL response!");
+		}
+
 		Response r = coapResponse.advanced();
 
 		int httpStatusCode = Integer.valueOf(r.getCode().codeClass) * 100 + Integer.valueOf(r.getCode().codeDetail);

@@ -38,8 +38,8 @@ import org.springframework.shell.table.TableModel;
 @ShellCommandGroup(CoapShellCommands.SHELL_COAP_REST_COMMANDS_GROUP)
 public class CoapInfoCommands {
 
-	@ShellMethod(key = "list content types", value = "List supported MIME types")
-	public Table listContentTypes() {
+	@ShellMethod(key = "mime types", value = "List supported MIME types")
+	public Table mimeTypes() {
 
 		LinkedHashMap<String, Object> headers = new LinkedHashMap<>();
 		headers.put("column[0]", "Type Id");
