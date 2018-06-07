@@ -25,6 +25,8 @@ image:https://raw.githubusercontent.com/tzolov/coap-shell/master/src/test/resour
 
 === Quick Start
 
+==== https://www.youtube.com/watch?v=zhEGFfCJwTg&feature=youtu.be[CoAP Shell Quick Start Video]
+
 * Download a pre-build https://bintray.com/big-data/maven/download_file?file_path=io%2Fdatalake%2Fcoap%2Fcoap-shell%2F1.0.2%2Fcoap-shell-1.0.2.jar[coap-shell.jar] or build one yourself following the instructions in the next section
 
 * Start the shell
