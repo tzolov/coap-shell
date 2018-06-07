@@ -1,6 +1,6 @@
 # CoAP Shell
 Java based, Command Line Interface for Constrained Application Protocol ([CoAP](https://en.wikipedia.org/wiki/Constrained_Application_Protocol)). Can be connected to any `coap:` or `coaps:` enabled nodes. Works over plain or [DTLS](https://en.wikipedia.org/wiki/Datagram_Transport_Layer_Security) secured transports.
-Can be used to explore the `IKEA TRÅDFRI Gateway` as well.
+(Shell can be used to explore the `IKEA TRÅDFRI Gateway` as well). [ ![Download](https://api.bintray.com/packages/big-data/maven/coap-shell/images/download.svg) ](https://bintray.com/big-data/maven/coap-shell/_latestVersion)
 
 Build upon the [Spring Shell](https://projects.spring.io/spring-shell/), [Californium (Cf)](https://www.eclipse.org/californium/) and [Scandium (Sc)](https://www.eclipse.org/californium/), 
 the project leverages the [SpringBoot](https://spring.io/projects/spring-boot) programming model and produces a single self-executable jar. Later can be used in any Java8 enabled environment.  
@@ -9,7 +9,7 @@ The CoAP is a REST based web transfer protocol specialized for use with constrai
 
 ![CoAP Shell Demo](https://raw.githubusercontent.com/tzolov/coap-shell/master/src/test/resources/coap-shell-dem-overview.gif)
 
-#### Features
+### Features
 * Supports both the `coap://` as well as the secured `caps://` (over DTLS) protocols.
 * Allows synchronous and asynchronous (with `--asynch` argument) `GET`, `PUT`, `POST` and `DELETE` methods execution.
 * The CoAP `observer` is supported by the following commands: `observer <resource>`, `observer show responses` and `observer stop`. Note: only one observer resource is allowed at give time.
@@ -21,8 +21,8 @@ The CoAP is a REST based web transfer protocol specialized for use with constrai
 * Can plug different KeyStores and certificates. 
 * Self-executable jar. Can be run on every Java 8 enabled environment.
 
-#### Quick Start
-
+### Quick Start
+* Download a pre-build [coap-shell.jar](https://bintray.com/big-data/maven/download_file?file_path=io%2Fdatalake%2Fcoap%2Fcoap-shell%2F1.0.1%2Fcoap-shell-1.0.1.jar) or build one yourself following the instructions in the next section
 * Start the shell
 ```bash
 java -jar ./coap-shell.jar
@@ -79,10 +79,10 @@ CoAP GET: coaps://californium.eclipse.org:5684/multi-format
 * Use `help` to the available commands and how are they used.
 * Use `TAB` for command and argument auto-completion.
 
-#### IKEA TRÅDFRI Gateway Support
+### IKEA TRÅDFRI Gateway Support
 TBD
 
-#### How to Build
+### How to Build
 Clone the project from GitHub and build with Maven.
 ```bash
 git clone https://github.com/tzolov/coap-shell.git
