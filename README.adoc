@@ -8,7 +8,7 @@ The Shell can be used to explore the `IKEA TRÅDFRI Gateway` as well!. https://b
 The CoAP Shell leverages the https://projects.spring.io/spring-shell/[Spring Shell], https://www.eclipse.org/californium/[Californium (Cf)] and https://www.eclipse.org/californium/[Scandium (Sc)],
 projects and the https://spring.io/projects/spring-boot[SpringBoot] programming model. Build produces a single self-executable jar. Later can be used in any Java8 enabled environment. 
 
-image:https://raw.githubusercontent.com/tzolov/coap-shell/master/src/test/resources/coap-shell-dem-overview.gif[CoAP Shell Demo]
+image:https://raw.githubusercontent.com/tzolov/coap-shell/master/src/test/resources/coap-shell-demo2.gif[CoAP Shell Demo]
 
 === Features
 
