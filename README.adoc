@@ -55,12 +55,11 @@ coaps://californium.eclipse.org:5684[CON]:>discover
 ┌─────────────────┬───────────────────┬────────────────────────────────────┬───────────────┬──────────────────┬────────────────┐
 │Path (href)      │Resource Types (rt)│Content Types (ct)                  │Interfaces (if)│Size estimate (sz)│Observable (obs)│
 ├─────────────────┼───────────────────┼────────────────────────────────────┼───────────────┼──────────────────┼────────────────┤
-│/.well-known/core│                   │                                    │               │                  │                │
-├─────────────────┼───────────────────┼────────────────────────────────────┼───────────────┼──────────────────┼────────────────┤
 │/large           │block              │                                    │               │1280              │                │
 ├─────────────────┼───────────────────┼────────────────────────────────────┼───────────────┼──────────────────┼────────────────┤
 │/multi-format    │                   │text/plain (0), application/xml (41)│               │                  │                │
 ├─────────────────┼───────────────────┼────────────────────────────────────┼───────────────┼──────────────────┼────────────────┤
+                                                        .....
 ----
 
 * Get resource data
@@ -87,18 +86,135 @@ CoAP GET: coaps://californium.eclipse.org:5684/multi-format
 
 === IKEA TRÅDFRI Gateway Support
 
-TBD
-* Generate Gateway pre-share key (psk)
-* Use the psk to connect to gateway 
+* Generate Gateway pre-share key
+Use the `ikea gateway key` to register a new account (e.g. identity + secret) to your IKEA Gateway:
+
+[source,bash]
+----
+server-unknown:>ikea gateway key --ip 192.168.178.151 --identity myIkeaGatewayIdentity --security-code <Gateway Code Label>
+-------------------------------- CoAP Response ---------------------------------
+ MID    : 58318
+ Token  : [60d1dcf80d8eb84f]
+ Type   : ACK
+ Status : 201-Created
+ Options: {}
+ RTT    : 371 ms
+ Payload: 45 Bytes
+............................... Body Payload ...................................
+{"9091":"X5xyYM41qFS7vNa9","9029":"1.3.0014"}
+--------------------------------------------------------------------------------
+IDENTITY: myIkeaGatewayIdentity , PRE_SHARED_KEY: X5xyYM41qFS7vN10
+----
+
+The `192.168.178.151` is the IP address of the gateway in your network. Please find your gateway's IP and use it instead!
+The `myIkeaGatewayIdentity` is the new identity to be registered with the gateway. the `<Gateway Code Label>` is printed on the back side of the Gateway box.
+The response `IDENTITY: myIkeaGatewayIdentity , PRE_SHARED_KEY: X5xyYM41qFS7vNa9` will contain the new credential created for you. Store the generated identity and secret so you cna use them to connect interact with your IKEA gateway.
+
+* Use the generated credentials to connect to gateway
+
+[source,bash]
+----
+server-unknown:>connect coaps://192.168.178.151:5684 --identity myIkeaGatewayIdentity --secret X5xyYM41qFS7vN10
+Connected to [coaps://192.168.178.151:5684], [con], [non-observable]
+coaps://192.168.178.151:5684:>
+----
+
+* List available devices
+
+[source,bash]
+----
+coaps://192.168.178.151:5684:>ikea devices
+┌────────┬─────────┬──────┬───────────────────────────────┬────────┬───────────┬──────┐
+│Instance│Name     │Type  │Model                          │Firmware│Battery [%]│ON/OFF│
+├────────┼─────────┼──────┼───────────────────────────────┼────────┼───────────┼──────┤
+│65537   │E27 LR4  │LIGHT │TRADFRI bulb E27 CWS opal 600lm│1.3.002 │-          │OFF   │
+├────────┼─────────┼──────┼───────────────────────────────┼────────┼───────────┼──────┤
+│65536   │Remote LR│SWITCH│TRADFRI remote control         │1.2.214 │87         │-     │
+├────────┼─────────┼──────┼───────────────────────────────┼────────┼───────────┼──────┤
+│65541   │GU10 LR2 │LIGHT │TRADFRI bulb GU10 WS 400lm     │1.2.217 │-          │OFF   │
+├────────┼─────────┼──────┼───────────────────────────────┼────────┼───────────┼──────┤
+│65538   │Sensor WC│SENSOR│TRADFRI motion sensor          │1.2.214 │100        │-     │
+└────────┴─────────┴──────┴───────────────────────────────┴────────┴───────────┴──────┘
+----
+
+* Turn on and off a lamp
+
+[source,bash]
+----
+coaps://192.168.178.151:5684:>ikea turn on --instance 65539
+OK
+
+coaps://192.168.178.151:5684:>ikea devices
+┌────────┬─────────┬──────┬───────────────────────────────┬────────┬───────────┬──────┐
+│Instance│Name     │Type  │Model                          │Firmware│Battery [%]│ON/OFF│
+├────────┼─────────┼──────┼───────────────────────────────┼────────┼───────────┼──────┤
+│65539   │GU10 WC  │LIGHT │TRADFRI bulb GU10 W 400lm      │1.2.214 │-          │ON    │
+├────────┼─────────┼──────┼───────────────────────────────┼────────┼───────────┼──────┤
+
+coaps://192.168.178.151:5684:>ikea turn off --instance 65539
+OK
+
+coaps://192.168.178.151:5684:>ikea devices
+┌────────┬─────────┬──────┬───────────────────────────────┬────────┬───────────┬──────┐
+│Instance│Name     │Type  │Model                          │Firmware│Battery [%]│ON/OFF│
+├────────┼─────────┼──────┼───────────────────────────────┼────────┼───────────┼──────┤
+│65539   │GU10 WC  │LIGHT │TRADFRI bulb GU10 W 400lm      │1.2.214 │-          │OFF   │
+├────────┼─────────┼──────┼───────────────────────────────┼────────┼───────────┼──────┤
+----
+
+* Use the CoAP GET check the raw message response
+
+[source,bash]
+----
+coaps://192.168.178.151:5684:>get //15001/65539
+CoAP GET: coaps://192.168.178.151:5684//15001/65539
+-------------------------------- CoAP Response ---------------------------------
+ MID    : 57799
+ Token  : [5037c0b052a0d656]
+ Type   : ACK
+ Status : 205-Reset Content
+ Options: {"Content-Format":"application/json", "Max-Age":604800}
+ RTT    : 7 ms
+ Payload: 220 Bytes
+............................... Body Payload ...................................
+{
+  "3311" : [ {
+    "5850" : 1,
+    "5851" : 203,
+    "9003" : 0
+  } ],
+  "9001" : "GU10 WC",
+  "9002" : 1528124737,
+  "9020" : 1528374678,
+  "9003" : 65539,
+  "9054" : 0,
+  "5750" : 2,
+  "9019" : 1,
+  "3" : {
+    "0" : "IKEA of Sweden",
+    "1" : "TRADFRI bulb GU10 W 400lm",
+    "2" : "",
+    "3" : "1.2.214",
+    "6" : 1
+  }
+}
+--------------------------------------------------------------------------------
+
+----
+
+
 
 === How to Build
 
 Clone the project from GitHub and build with Maven.
-`bash
+
+[source,bash]
+----
 git clone https://github.com/tzolov/coap-shell.git
 cd ./coap-shell
 ./mvnw clean install
-`
+----
+
 Then run the self-executable jar in the `target` folder.
 
 === Debugging
@@ -108,6 +224,8 @@ Start the shell with `--logging.level=DEBUG` to enable debug log level for the e
  is useful to debug the CoAP request message and DTLS interactions.
 
 For example:
-`
+
+[source,bash]
+----
 java -jar ./target/coap-shell-0.0.1-SNAPSHOT.jar --logging.level.org.eclipse.californium=DEBUG
-`
+----
