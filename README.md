@@ -81,6 +81,8 @@ CoAP GET: coaps://californium.eclipse.org:5684/multi-format
 
 ### IKEA TRÅDFRI Gateway Support
 TBD
+* Generate Gateway pre-share key (psk)
+* Use the psk to connect to gateway 
 
 ### How to Build
 Clone the project from GitHub and build with Maven.
