@@ -7,6 +7,8 @@ the project leverages the [SpringBoot](https://spring.io/projects/spring-boot) p
 
 The CoAP is a REST based web transfer protocol specialized for use with constrained nodes and constrained networks in the Internet of Things (IoT).
 
+![CoAP Shell Demo](https://raw.githubusercontent.com/tzolov/coap-shell/master/src/test/resources/coap-shell-dem-overview.gif)
+
 #### Features
 * Supports both the `coap://` as well as the secured `caps://` (over DTLS) protocols.
 * Allows synchronous and asynchronous (with `--asynch` argument) `GET`, `PUT`, `POST` and `DELETE` methods execution.
@@ -78,7 +80,7 @@ CoAP GET: coaps://californium.eclipse.org:5684/multi-format
 * Use `TAB` for command and argument auto-completion.
 
 #### IKEA TRÅDFRI Gateway Support
-
+TBD
 
 #### How to Build
 Clone the project from GitHub and build with Maven.
