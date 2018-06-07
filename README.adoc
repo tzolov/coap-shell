@@ -25,10 +25,11 @@ image:https://raw.githubusercontent.com/tzolov/coap-shell/master/src/test/resour
 
 === Quick Start
 
-* Download a pre-build https://bintray.com/big-data/maven/download_file?file_path=io%2Fdatalake%2Fcoap%2Fcoap-shell%2F1.0.1%2Fcoap-shell-1.0.1.jar[coap-shell.jar] or build one yourself following the instructions in the next section
+* Download a pre-build https://bintray.com/big-data/maven/download_file?file_path=io%2Fdatalake%2Fcoap%2Fcoap-shell%2F1.0.2%2Fcoap-shell-1.0.2.jar[coap-shell.jar] or build one yourself following the instructions in the next section
+
 * Start the shell
 `bash
-java -jar ./coap-shell.jar
+java -jar ./coap-shell-1.0.2.jar
 `
 [source,bash]
 ----
@@ -36,7 +37,7 @@ java -jar ./coap-shell.jar
  / ___/__  / _ | / _ \   / __/ /  ___ / / /
 / /__/ _ \/ __ |/ ___/  _\ \/ _ \/ -_) / /
 \___/\___/_/ |_/_/     /___/_//_/\__/_/_/
-CoAP Shell (v0.0.1-SNAPSHOT) iot.datalake.io
+CoAP Shell (v1.02)
 
 unconnected:>
 ----
