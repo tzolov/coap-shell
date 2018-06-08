@@ -25,12 +25,14 @@ image:https://raw.githubusercontent.com/tzolov/coap-shell/master/src/test/resour
 * Single, self-executable (`SpringBoot`) jar, working on any JKD8+ environment.
 * Basic support for `IKEA Tradfri Gateway`.
 
-The video::zhEGFfCJwTg[youtube] video highlights some of the basic features provided.
+The https://youtu.be/zhEGFfCJwTg[CoAP Shell video] below, highlights some of the features provided by the shell:
+
+https://youtu.be/zhEGFfCJwTg[image:https://raw.githubusercontent.com/tzolov/coap-shell/master/src/test/resources/coap-shell-video-log.png[CoAP Shell video]]
 
 === Quick Start
 
-* Download a pre-build https://bintray.com/big-data/maven/download_file?file_path=io%2Fdatalake%2Fcoap%2Fcoap-shell%2F1.0.2%2Fcoap-shell-1.0.2.jar[coap-shell.jar] or build one yourself following the instructions in the next section
-* Start the shell
+* Get a pre-build https://bintray.com/big-data/maven/download_file?file_path=io%2Fdatalake%2Fcoap%2Fcoap-shell%2F1.0.2%2Fcoap-shell-1.0.2.jar[coap-shell.jar] or build one yourself following the instructions further down.
+* Then start the shell like this
 [source,bash]
 ----
 java -jar ./coap-shell-1.0.2.jar
