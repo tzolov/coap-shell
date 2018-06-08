@@ -55,6 +55,6 @@ public class CoapInfoCommands {
 
 		TableModel model = new BeanListTableModel(list, headers);
 		TableBuilder tableBuilder = new TableBuilder(model);
-		return tableBuilder.addFullBorder(BorderStyle.fancy_light).build();
+		return tableBuilder.addHeaderAndVerticalsBorders(BorderStyle.fancy_light).build();
 	}
 }

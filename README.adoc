@@ -15,17 +15,17 @@ image:https://raw.githubusercontent.com/tzolov/coap-shell/master/src/test/resour
 === Features
 * Plain https://tools.ietf.org/html/rfc7252#section-6.1[coap:] and secured https://tools.ietf.org/html/rfc7252#section-6.2[coaps:] endpoints (e.g. `UDP` and `DTLS` transports).
 * CoAP `get`, `put`, `post` and `delete` methods.
-* `Synchronous` and `Asynchronous` (`--async` argument) message exchanges.
 * CoAP https://tools.ietf.org/html/rfc7641[Observing].
+* CoAP https://tools.ietf.org/html/rfc7252#section-7.2[Discovery] with filters for `href`, `ct`, `rt`, `obs` ...
+* `Synchronous` and `Asynchronous` (`--async` argument) message exchanges.
 * https://tools.ietf.org/html/draft-ietf-core-observe-08#section-3.5[Confirmable] and `Non-Confirmable` message exchange.
-* CoAP https://tools.ietf.org/html/rfc7252#section-7.2[Discovery]. Filter by `href`, `ct`, `rt`, `obs` ...
-* TAB auto-completion for `command` and `argument` auto-completion.
-* Intuitive command help support (type `help`).
-* Alternative Key/Trust Stores can be plugged in.
-* Single, self-executable (`SpringBoot`) jar, working on any JKD8+ environment.
+* TAB auto-completion for `command` and `arguments`.
+* Command help support (type `help`).
+* Alternative Key/Trust Stores could be plugged in.
+* `SpringBoot`, self-executable jar, running on any Java 8+ environment.
 * Basic support for `IKEA Tradfri Gateway`.
 
-The https://youtu.be/zhEGFfCJwTg[CoAP Shell video] below, highlights some of the features provided by the shell:
+The https://youtu.be/zhEGFfCJwTg[CoAP Shell video], highlights some of those features:
 
 https://youtu.be/zhEGFfCJwTg[image:https://raw.githubusercontent.com/tzolov/coap-shell/master/src/test/resources/coap-shell-video-log.png[CoAP Shell video]]
 

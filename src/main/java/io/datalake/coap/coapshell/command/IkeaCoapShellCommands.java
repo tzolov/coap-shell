@@ -105,7 +105,7 @@ public class IkeaCoapShellCommands {
 
 		StringBuilder commandResponse = new StringBuilder();
 
-		commandResponse.append(normal(PrintUtils.prettyPrint(gatewayResponse))).append("\n");
+		commandResponse.append(normal(PrintUtils.prettyPrint(gatewayResponse, ""))).append("\n");
 
 		if (gatewayResponse != null && gatewayResponse.isSuccess()) {
 			try {

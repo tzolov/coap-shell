@@ -104,7 +104,8 @@ public class CoapShellCommands implements ApplicationEventPublisherAware {
 	public String connect(
 			@ShellOption(help = "URI of the server to connect to") URI uri,
 			@ShellOption(defaultValue = ShellOption.NULL, help = "pre-shared key identity") String identity,
-			@ShellOption(defaultValue = ShellOption.NULL, help = "pre-shared key secret") String secret) {
+			@ShellOption(defaultValue = ShellOption.NULL, help = "pre-shared key secret") String secret,
+			@ShellOption(defaultValue = "false", help = "pre-initialize resource auto-completion") boolean discover) {
 
 		Assert.notNull(uri, "Null  URI");
 		Assert.hasText(uri.getScheme(), "Missing CoAP URI schema! Either `coap:` or `coaps:` is required.");
@@ -130,10 +131,8 @@ public class CoapShellCommands implements ApplicationEventPublisherAware {
 					.setNetworkConfig(NetworkConfig.getStandard()
 							.set(NetworkConfig.Keys.TCP_CONNECTION_IDLE_TIMEOUT, DEFAULT_TCP_CONNECTION_IDLE_TIMEOUT)
 							.set(NetworkConfig.Keys.DTLS_AUTO_RESUME_TIMEOUT, 1000 * 60 * 30))
-//							.set(NetworkConfig.Keys.ACK_TIMEOUT, 40000))
 					.setConnector(dtlsConnector).build();
 			this.coapClient.setEndpoint(coapEndpoint);
-//			this.coapClient.setTimeout(60000L);
 		}
 
 		if (this.coapClient.getURI() != null) {
@@ -145,7 +144,12 @@ public class CoapShellCommands implements ApplicationEventPublisherAware {
 			this.eventPublisher.publishEvent(this.connectionStatus);
 		}
 
-		return this.ping("/");
+		boolean available = this.pingInternal("/");
+		if (available && discover) {
+			this.discover("");
+		}
+
+		return available ? green("available") : red("unavailable");
 	}
 
 	@ShellMethod(value = "Check CoAP resources availability", group = SHELL_CONNECTIVITY_GROUP)
@@ -192,12 +196,12 @@ public class CoapShellCommands implements ApplicationEventPublisherAware {
 					valueProvider = DiscoveryQueryValueProvider.class) String query) {
 
 		LinkedHashMap<String, Object> headers = new LinkedHashMap<>();
-		headers.put("column[0]", "Path (href)");
-		headers.put("column[1]", "Resource Types (rt)");
-		headers.put("column[2]", "Content Types (ct)");
-		headers.put("column[3]", "Interfaces (if)");
-		headers.put("column[4]", "Size estimate (sz)");
-		headers.put("column[5]", "Observable (obs)");
+		headers.put("column[0]", "Path [href]");
+		headers.put("column[1]", "Resource Type [rt]");
+		headers.put("column[2]", "Content Type [ct]");
+		headers.put("column[3]", "Interface [if]");
+		headers.put("column[4]", "Size [sz]");
+		headers.put("column[5]", "Observable [obs]");
 
 		Set<WebLink> resources = this.coapClient.discover(query);
 
@@ -210,7 +214,7 @@ public class CoapShellCommands implements ApplicationEventPublisherAware {
 
 		TableModel model = new BeanListTableModel(formatDiscoveryResult(resources), headers);
 		TableBuilder tableBuilder = new TableBuilder(model);
-		return tableBuilder.addFullBorder(BorderStyle.fancy_light).build();
+		return tableBuilder.addHeaderAndVerticalsBorders(BorderStyle.fancy_light).build();
 	}
 
 	private List<Row> formatDiscoveryResult(Set<WebLink> links) {
@@ -245,10 +249,10 @@ public class CoapShellCommands implements ApplicationEventPublisherAware {
 			@ShellOption(value = "disabled", defaultValue = "false") boolean disabled) {
 
 		if (disabled) {
-			this.coapClient.useCONs();
+			this.coapClient.useNONs();
 		}
 		else {
-			this.coapClient.useNONs();
+			this.coapClient.useCONs();
 		}
 		this.connectionStatus.setMode((
 				disabled == false) ? CoapConnectionStatus.RequestMode.con : CoapConnectionStatus.RequestMode.non);
@@ -266,14 +270,14 @@ public class CoapShellCommands implements ApplicationEventPublisherAware {
 		StringBuffer result = new StringBuffer();
 		final String baseUri = this.coapClient.getURI();
 		try {
-			result.append(requestInfo("GET", baseUri + path, async));
+			//result.append(requestInfo("GET", baseUri + path, async));
 			this.coapClient.setURI(this.coapClient.getURI() + path);
 			if (async) {
-				this.coapClient.get(asyncHandler(), coapContentType(accept));
+				this.coapClient.get(new AsyncCommandHandler(baseUri + path), coapContentType(accept));
 			}
 			else {
 				CoapResponse response = this.coapClient.get(coapContentType(accept));
-				result.append(PrintUtils.prettyPrint(response));
+				result.append(PrintUtils.prettyPrint(response, requestInfo("GET", baseUri + path, async)));
 			}
 		}
 		finally {
@@ -305,15 +309,14 @@ public class CoapShellCommands implements ApplicationEventPublisherAware {
 		String baseUri = coapClient.getURI();
 		try {
 			this.coapClient.setURI(baseUri + path);
-			result.append(requestInfo("POST", baseUri + path, async));
 			if (async) {
-				coapClient.post(asyncHandler(), payloadContent,
+				coapClient.post(new AsyncCommandHandler(baseUri + path), payloadContent,
 						coapContentType(format), coapContentType(accept));
 			}
 			else {
 				CoapResponse response = coapClient.post(payloadContent,
 						coapContentType(format), coapContentType(accept));
-				result.append(PrintUtils.prettyPrint(response));
+				result.append(PrintUtils.prettyPrint(response, requestInfo("POST", baseUri + path, async)));
 			}
 		}
 		finally {
@@ -343,13 +346,12 @@ public class CoapShellCommands implements ApplicationEventPublisherAware {
 		final String baseUri = this.coapClient.getURI();
 		try {
 			this.coapClient.setURI(baseUri + path);
-			result.append(requestInfo("PUT", baseUri + path, async));
 			if (async) {
-				this.coapClient.put(asyncHandler(), payloadContent, coapContentType(format));
+				this.coapClient.put(new AsyncCommandHandler(baseUri + path), payloadContent, coapContentType(format));
 			}
 			else {
 				CoapResponse response = this.coapClient.put(payloadContent, coapContentType(format));
-				result.append(PrintUtils.prettyPrint(response));
+				result.append(PrintUtils.prettyPrint(response, requestInfo("PUT", baseUri + path, async)));
 			}
 		}
 		finally {
@@ -369,13 +371,12 @@ public class CoapShellCommands implements ApplicationEventPublisherAware {
 		final String baseUri = this.coapClient.getURI();
 		try {
 			this.coapClient.setURI(baseUri + path);
-			result.append(requestInfo("DELETE", baseUri + path, async));
 			if (async) {
-				this.coapClient.delete(asyncHandler());
+				this.coapClient.delete(new AsyncCommandHandler(baseUri + path));
 			}
 			else {
 				CoapResponse response = this.coapClient.delete();
-				result.append(PrintUtils.prettyPrint(response));
+				result.append(PrintUtils.prettyPrint(response, requestInfo("DELETE", baseUri + path, async)));
 			}
 		}
 		finally {
@@ -403,7 +404,7 @@ public class CoapShellCommands implements ApplicationEventPublisherAware {
 					observerResponses
 							.append(cyan("OBSERVE Response (" + connectionStatus.getObservedUri() + "):"))
 							.append(StringUtil.lineSeparator())
-							.append(cyan(PrintUtils.prettyPrint(response))).append(StringUtil.lineSeparator());
+							.append(cyan(PrintUtils.prettyPrint(response, ""))).append(StringUtil.lineSeparator());
 				}
 
 				@Override
@@ -471,8 +472,7 @@ public class CoapShellCommands implements ApplicationEventPublisherAware {
 	}
 
 	private String requestInfo(String method, String path, boolean async) {
-		return cyan("CoAP " + method.toUpperCase() +
-				(async ? "[ASYNC]" : "") + ": " + path + StringUtil.lineSeparator);
+		return normal(" Method: " + method.toUpperCase() + (async ? "[ASYNC]" : "") + ", URI: " + path);
 	}
 
 	/**
@@ -494,19 +494,26 @@ public class CoapShellCommands implements ApplicationEventPublisherAware {
 	/**
 	 * @return New asynchronous handler for the purpose of the async method calls (GET, POST, PUT).
 	 */
-	private CoapHandler asyncHandler() {
-		return new CoapHandler() {
-			@Override
-			public void onLoad(CoapResponse response) {
-				terminal.writer().append(cyan(String.format("\nAsync (%s)\n %s \n", coapClient.getURI(),
-						PrintUtils.prettyPrint(response)))).flush();
-			}
 
-			@Override
-			public void onError() {
-				terminal.writer().append(red(String.format("\nAsync (%s) Failure!!\n", coapClient.getURI()))).flush();
-			}
-		};
+	public class AsyncCommandHandler implements CoapHandler {
+		private String handlerUri;
+
+		public AsyncCommandHandler(String handlerUri) {
+			this.handlerUri = handlerUri;
+		}
+
+		@Override
+		public void onLoad(CoapResponse response) {
+			terminal.writer().append(cyan(String.format("\nAsync Response (%s)\n%s\n", handlerUri,
+					PrintUtils.prettyPrint(response, ""))));
+			terminal.raise(Terminal.Signal.CONT);
+		}
+
+		@Override
+		public void onError() {
+			terminal.writer().append(red(String.format("\nAsync (%s) Failure!!\n", handlerUri))).flush();
+			terminal.raise(Terminal.Signal.CONT);
+		}
 	}
 
 	@Override
