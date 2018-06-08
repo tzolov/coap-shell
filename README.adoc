@@ -1,4 +1,5 @@
 = CoAP Shell
+
 https://bintray.com/big-data/maven/coap-shell/_latestVersion[ image:https://api.bintray.com/packages/big-data/maven/coap-shell/images/download.svg[Download] ]
 
 https://en.wikipedia.org/wiki/Constrained_Application_Protocol[CoAP] is a RESTful web transfer protocol specialized for use with constrained nodes and constrained networks in the Internet of Things (IoT).
@@ -24,7 +25,7 @@ image:https://raw.githubusercontent.com/tzolov/coap-shell/master/src/test/resour
 * Single, self-executable (`SpringBoot`) jar, working on any JKD8+ environment.
 * Basic support for `IKEA Tradfri Gateway`.
 
-The <a href="http://www.youtube.com/watch?feature=player_embedded&v=zhEGFfCJwTg" target="_blank">CoAP Shell video<img src="http://img.youtube.com/vi/zhEGFfCJwTg/0.jpg" alt="CoAP Shell video" width="240" height="180" border="10" /></a> highlights some of the basic features provided.
+The video::zhEGFfCJwTg[youtube] video highlights some of the basic features provided.
 
 === Quick Start
 
