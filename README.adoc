@@ -62,13 +62,14 @@ coaps://californium.eclipse.org:5684:>
 [source,bash]
 ----
 coaps://californium.eclipse.org:5684:>discover --query href=/*
-┌─────────────────┬───────────────────┬────────────────────────────────────┬───────────────┬──────────────────┬────────────────┐
-│Path (href)      │Resource Types (rt)│Content Types (ct)                  │Interfaces (if)│Size estimate (sz)│Observable (obs)│
-├─────────────────┼───────────────────┼────────────────────────────────────┼───────────────┼──────────────────┼────────────────┤
-│/large           │block              │                                    │               │1280              │                │
-├─────────────────┼───────────────────┼────────────────────────────────────┼───────────────┼──────────────────┼────────────────┤
-│/multi-format    │                   │text/plain (0), application/xml (41)│               │                  │                │
-├─────────────────┼───────────────────┼────────────────────────────────────┼───────────────┼──────────────────┼────────────────┤
+┌─────────────────┬──────────────────┬────────────────────────────────────┬──────────────┬─────────┬────────────────┐
+│Path [href]      │Resource Type [rt]│Content Type [ct]                   │Interface [if]│Size [sz]│Observable [obs]│
+├─────────────────┼──────────────────┼────────────────────────────────────┼──────────────┼─────────┼────────────────┤
+│/.well-known/core│                  │                                    │              │         │                │
+│/large           │block             │                                    │              │1280     │                │
+│/link1           │Type1, Type2      │                                    │If1           │         │                │
+│/multi-format    │                  │text/plain (0), application/xml (41)│              │         │                │
+│/obs             │observe           │text/plain (0)                      │              │         │observable      │
                                                         .....
 ----
 
@@ -76,17 +77,13 @@ coaps://californium.eclipse.org:5684:>discover --query href=/*
 [source,bash]
 ----
 coaps://californium.eclipse.org:5684:>get /multi-format --accept application/xml
-CoAP GET: coaps://californium.eclipse.org:5684/multi-format
--------------------------------- CoAP Response ---------------------------------
- MID    : 53611
- Token  : [c64e9a0af487b20d]
- Type   : ACK
- Status : 205-Reset Content
- Options: {"Content-Format":"application/xml"}
- RTT    : 124 ms
- Payload: 63 Bytes
-............................... Body Payload ...................................
-<msg type="CON" code="GET" mid=53611 accept="application/xml"/>
+----------------------------------- Response -----------------------------------
+GET coaps://californium.eclipse.org:5684/multi-format
+MID: 31291, Type: ACK, Token: [0a10eaafaf3d024f], RTT: 123ms
+Options: {"Content-Format":"application/xml"}
+Status : 205-Reset Content, Payload: 63B
+----------------------------------- Payload ------------------------------------
+<msg type="CON" code="GET" mid=31291 accept="application/xml"/>
 --------------------------------------------------------------------------------
 
 ----
@@ -133,16 +130,16 @@ coaps://192.168.178.151:5684:>
 
 [source,bash]
 ----
-coaps://192.168.178.151:5684:>ikea devices
+coaps://192.168.178.151:5684:>ikea device list
 ┌────────┬─────────┬──────┬───────────────────────────────┬────────┬───────────┬──────┐
 │Instance│Name     │Type  │Model                          │Firmware│Battery [%]│ON/OFF│
 ├────────┼─────────┼──────┼───────────────────────────────┼────────┼───────────┼──────┤
 │65537   │E27 LR4  │LIGHT │TRADFRI bulb E27 CWS opal 600lm│1.3.002 │-          │OFF   │
-├────────┼─────────┼──────┼───────────────────────────────┼────────┼───────────┼──────┤
+│65539   │GU10 WC  │LIGHT │TRADFRI bulb GU10 W 400lm      │1.2.214 │-          │OFF   │
 │65536   │Remote LR│SWITCH│TRADFRI remote control         │1.2.214 │87         │-     │
-├────────┼─────────┼──────┼───────────────────────────────┼────────┼───────────┼──────┤
-│65541   │GU10 LR2 │LIGHT │TRADFRI bulb GU10 WS 400lm     │1.2.217 │-          │OFF   │
-├────────┼─────────┼──────┼───────────────────────────────┼────────┼───────────┼──────┤
+│65542   │GU10 LR3 │LIGHT │TRADFRI bulb GU10 WS 400lm     │1.2.217 │-          │ON    │
+│65540   │GU10 LR1 │LIGHT │TRADFRI bulb GU10 WS 400lm     │1.2.217 │-          │ON    │
+│65541   │GU10 LR2 │LIGHT │TRADFRI bulb GU10 WS 400lm     │1.2.217 │-          │ON    │
 │65538   │Sensor WC│SENSOR│TRADFRI motion sensor          │1.2.214 │100        │-     │
 └────────┴─────────┴──────┴───────────────────────────────┴────────┴───────────┴──────┘
 ----
@@ -154,22 +151,22 @@ coaps://192.168.178.151:5684:>ikea devices
 coaps://192.168.178.151:5684:>ikea turn on --instance 65539
 OK
 
-coaps://192.168.178.151:5684:>ikea devices
+coaps://192.168.178.151:5684:>ikea device list
 ┌────────┬─────────┬──────┬───────────────────────────────┬────────┬───────────┬──────┐
 │Instance│Name     │Type  │Model                          │Firmware│Battery [%]│ON/OFF│
 ├────────┼─────────┼──────┼───────────────────────────────┼────────┼───────────┼──────┤
 │65539   │GU10 WC  │LIGHT │TRADFRI bulb GU10 W 400lm      │1.2.214 │-          │ON    │
-├────────┼─────────┼──────┼───────────────────────────────┼────────┼───────────┼──────┤
+
 
 coaps://192.168.178.151:5684:>ikea turn off --instance 65539
 OK
 
-coaps://192.168.178.151:5684:>ikea devices
+coaps://192.168.178.151:5684:>ikea device list
 ┌────────┬─────────┬──────┬───────────────────────────────┬────────┬───────────┬──────┐
 │Instance│Name     │Type  │Model                          │Firmware│Battery [%]│ON/OFF│
 ├────────┼─────────┼──────┼───────────────────────────────┼────────┼───────────┼──────┤
 │65539   │GU10 WC  │LIGHT │TRADFRI bulb GU10 W 400lm      │1.2.214 │-          │OFF   │
-├────────┼─────────┼──────┼───────────────────────────────┼────────┼───────────┼──────┤
+
 ----
 
 * Use the CoAP GET check the raw message response
@@ -177,29 +174,25 @@ coaps://192.168.178.151:5684:>ikea devices
 [source,bash]
 ----
 coaps://192.168.178.151:5684:>get //15001/65539
-CoAP GET: coaps://192.168.178.151:5684//15001/65539
--------------------------------- CoAP Response ---------------------------------
- MID    : 57799
- Token  : [5037c0b052a0d656]
- Type   : ACK
- Status : 205-Reset Content
- Options: {"Content-Format":"application/json", "Max-Age":604800}
- RTT    : 7 ms
- Payload: 220 Bytes
-............................... Body Payload ...................................
+----------------------------------- Response -----------------------------------
+GET coaps://192.168.178.151:5684//15001/65539
+MID: 30881, Type: ACK, Token: [260128b68be34371], RTT: 5ms
+Options: {"Content-Format":"application/json", "Max-Age":604800}
+Status : 205-Reset Content, Payload: 220B
+----------------------------------- Payload ------------------------------------
 {
   "3311" : [ {
-    "5850" : 1,
+    "5850" : 0,
     "5851" : 203,
     "9003" : 0
   } ],
   "9001" : "GU10 WC",
   "9002" : 1528124737,
-  "9020" : 1528374678,
+  "9020" : 1528447038,
   "9003" : 65539,
   "9054" : 0,
   "5750" : 2,
-  "9019" : 1,
+  "9019" : 0,
   "3" : {
     "0" : "IKEA of Sweden",
     "1" : "TRADFRI bulb GU10 W 400lm",

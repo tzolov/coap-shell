@@ -105,7 +105,7 @@ public class CoapShellCommands implements ApplicationEventPublisherAware {
 			@ShellOption(help = "URI of the server to connect to") URI uri,
 			@ShellOption(defaultValue = ShellOption.NULL, help = "pre-shared key identity") String identity,
 			@ShellOption(defaultValue = ShellOption.NULL, help = "pre-shared key secret") String secret,
-			@ShellOption(defaultValue = "false", help = "pre-initialize resource auto-completion") boolean discover) {
+			@ShellOption(defaultValue = "false", help = "disable argument auto-completion pre-initialization") boolean disableDiscover) {
 
 		Assert.notNull(uri, "Null  URI");
 		Assert.hasText(uri.getScheme(), "Missing CoAP URI schema! Either `coap:` or `coaps:` is required.");
@@ -145,7 +145,7 @@ public class CoapShellCommands implements ApplicationEventPublisherAware {
 		}
 
 		boolean available = this.pingInternal("/");
-		if (available && discover) {
+		if (available && !disableDiscover) {
 			this.discover("");
 		}
 
@@ -284,7 +284,7 @@ public class CoapShellCommands implements ApplicationEventPublisherAware {
 			this.coapClient.setURI(baseUri);
 		}
 
-		return normal(result.toString());
+		return result.toString();
 	}
 
 	@ShellMethod("Create/Update data in CoAP Resource")
@@ -322,7 +322,7 @@ public class CoapShellCommands implements ApplicationEventPublisherAware {
 		finally {
 			coapClient.setURI(baseUri);
 		}
-		return normal(result.toString());
+		return result.toString();
 	}
 
 	@ShellMethod("Update data in CoAP Resource")
@@ -358,7 +358,7 @@ public class CoapShellCommands implements ApplicationEventPublisherAware {
 			this.coapClient.setURI(baseUri);
 		}
 
-		return normal(result.toString());
+		return result.toString();
 	}
 
 	@ShellMethod("Delete CoAP Resource")
@@ -382,7 +382,7 @@ public class CoapShellCommands implements ApplicationEventPublisherAware {
 		finally {
 			this.coapClient.setURI(baseUri);
 		}
-		return normal(result.toString());
+		return result.toString();
 	}
 
 	@ShellMethod(key = "observe", value = "Start observing data from a CoAP Resource")
@@ -421,7 +421,7 @@ public class CoapShellCommands implements ApplicationEventPublisherAware {
 			this.coapClient.setURI(baseUri);
 		}
 
-		return normal(result.toString());
+		return result.toString();
 	}
 
 	@ShellMethod(key = "observe show messages", value = "List observed responses")
@@ -472,7 +472,7 @@ public class CoapShellCommands implements ApplicationEventPublisherAware {
 	}
 
 	private String requestInfo(String method, String path, boolean async) {
-		return normal(" Method: " + method.toUpperCase() + (async ? "[ASYNC]" : "") + ", URI: " + path);
+		return "" + cyan(method.toUpperCase() + (async ? "[ASYNC]" : "")) + " " + cyan(path);
 	}
 
 	/**
@@ -504,14 +504,15 @@ public class CoapShellCommands implements ApplicationEventPublisherAware {
 
 		@Override
 		public void onLoad(CoapResponse response) {
-			terminal.writer().append(cyan(String.format("\nAsync Response (%s)\n%s\n", handlerUri,
-					PrintUtils.prettyPrint(response, ""))));
+			terminal.writer().append(StringUtil.lineSeparator())
+					.append(PrintUtils.prettyPrint(response, cyan(String.format("Async Response (%s)", handlerUri))))
+					.append(StringUtil.lineSeparator());
 			terminal.raise(Terminal.Signal.CONT);
 		}
 
 		@Override
 		public void onError() {
-			terminal.writer().append(red(String.format("\nAsync (%s) Failure!!\n", handlerUri))).flush();
+			terminal.writer().append(StringUtil.lineSeparator()).append(red(String.format("\nAsync (%s) Failure!!\n", handlerUri))).flush();
 			terminal.raise(Terminal.Signal.CONT);
 		}
 	}

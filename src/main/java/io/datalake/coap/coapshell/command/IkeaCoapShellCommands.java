@@ -156,7 +156,28 @@ public class IkeaCoapShellCommands {
 		return "";
 	}
 
-	@ShellMethod(key = "ikea devices", value = "List all devices registered to the IKEA TRÅDFRI Gateway")
+	@ShellMethod(key = "ikea device name", value = "Get or change a device name")
+	@ShellMethodAvailability("ikeaAvailabilityCheck")
+	public String deviceName(
+			@ShellOption(help = "device id", valueProvider = IkeaDeviceInstanceValueProvider.class) int instance,
+			@ShellOption(defaultValue = ShellOption.NULL, help = "New device name") String newName) throws IOException {
+		StringBuffer sb = new StringBuffer();
+		ObjectMapper mapper = new ObjectMapper();
+		String deviceJson = getJson("/15001/" + instance);
+		Map<String, Object> deviceMap = mapper.readValue(deviceJson, Map.class);
+
+		String oldName = (String) deviceMap.get("9001");
+
+		if (!StringUtils.hasText(newName)) {
+			return oldName;
+		}
+		String payload = String.format("{\"9001\":\"%s\"}", newName);
+		String renameSuccess = putJson("/15001/" + instance, payload);
+		return String.format("Rename device [%d] name [%s] to [%s]. Status: %s", instance, oldName, newName, renameSuccess);
+	}
+
+
+	@ShellMethod(key = "ikea device list", value = "List all devices registered to the IKEA TRÅDFRI Gateway")
 	@ShellMethodAvailability("ikeaAvailabilityCheck")
 	public Table listIkeaDevices() throws IOException {
 		ObjectMapper mapper = new ObjectMapper();
@@ -191,7 +212,7 @@ public class IkeaCoapShellCommands {
 //		headers.put("column[7]", "Created at");
 		TableModel model = new BeanListTableModel(list, headers);
 		TableBuilder tableBuilder = new TableBuilder(model);
-		return tableBuilder.addFullBorder(BorderStyle.fancy_light).build();
+		return tableBuilder.addHeaderAndVerticalsBorders(BorderStyle.fancy_light).build();
 	}
 
 	private String onOffStatus(Object value) {
