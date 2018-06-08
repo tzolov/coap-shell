@@ -79,8 +79,9 @@ public class CoapShellCommands implements ApplicationEventPublisherAware {
 	public static final String COAP_TEXT_PLAIN = "" + MediaTypeRegistry.TEXT_PLAIN;
 	public static final String SHELL_CONNECTIVITY_GROUP = "CoAP Server Connectivity";
 	public static final String SHELL_COAP_REST_COMMANDS_GROUP = "CoAP Commands";
-	public static final String COAP_SHELL_CONFIGURATION_GROUP = "CoAP Configuration";
 	public static final int DEFAULT_TCP_CONNECTION_IDLE_TIMEOUT = 60 * 30; // 30 min [sec]
+	public static final String COAPS = "coaps";
+	public static final String COAP = "coap";
 
 	private CoapClient coapClient;
 	private ApplicationEventPublisher eventPublisher;
@@ -105,54 +106,62 @@ public class CoapShellCommands implements ApplicationEventPublisherAware {
 			@ShellOption(defaultValue = ShellOption.NULL, help = "pre-shared key identity") String identity,
 			@ShellOption(defaultValue = ShellOption.NULL, help = "pre-shared key secret") String secret) {
 
-		Assert.notNull(uri, "Null or invalid URI");
-		Assert.hasText(uri.getScheme(), "Missing URI schema. Valid CoAP URI requires either coap:// or coaps:// schema");
-		Assert.isTrue(uri.getScheme().equalsIgnoreCase("coap")
-				|| uri.getScheme().equalsIgnoreCase("coaps"), String.format("Invalid CoAP URI schema [%s]. " +
-				"Valid CoAP URI requires either coap:// or coaps:// schema", uri.getScheme()));
+		Assert.notNull(uri, "Null  URI");
+		Assert.hasText(uri.getScheme(), "Missing CoAP URI schema! Either `coap:` or `coaps:` is required.");
+		Assert.isTrue(uri.getScheme().equalsIgnoreCase(COAP)
+				|| uri.getScheme().equalsIgnoreCase(COAPS), String.format("Invalid CoAP URI schema [%s]. " +
+				"Use either `coap:` or `coaps:`", uri.getScheme()));
 
+		// Clean previous connection states
 		if (this.availabilityCheck().isAvailable()) {
 			this.shutdown();
 		}
 		this.observeStop();
 
+		// Config new connection
 		this.coapClient = new CoapClient(uri);
 
-		if (uri.getScheme().equalsIgnoreCase("coaps")
+		// Add secure DTLS endpoint if required
+		if (uri.getScheme().equalsIgnoreCase(COAPS)
 				|| StringUtils.hasText(secret) || StringUtils.hasText(identity)) {
 			DTLSConnector dtlsConnector = dtsl.createConnector(identity, secret);
 
 			CoapEndpoint coapEndpoint = new CoapEndpoint.CoapEndpointBuilder()
-					.setNetworkConfig(NetworkConfig.getStandard().set(
-							NetworkConfig.Keys.TCP_CONNECTION_IDLE_TIMEOUT, DEFAULT_TCP_CONNECTION_IDLE_TIMEOUT))
+					.setNetworkConfig(NetworkConfig.getStandard()
+							.set(NetworkConfig.Keys.TCP_CONNECTION_IDLE_TIMEOUT, DEFAULT_TCP_CONNECTION_IDLE_TIMEOUT)
+							.set(NetworkConfig.Keys.DTLS_AUTO_RESUME_TIMEOUT, 1000 * 60 * 30))
+//							.set(NetworkConfig.Keys.ACK_TIMEOUT, 40000))
 					.setConnector(dtlsConnector).build();
-
 			this.coapClient.setEndpoint(coapEndpoint);
+//			this.coapClient.setTimeout(60000L);
 		}
 
 		if (this.coapClient.getURI() != null) {
-			this.connectionStatus
-					.setBaseUri(this.coapClient.getURI())
+			this.connectionStatus.setBaseUri(this.coapClient.getURI())
 					.setMode(CoapConnectionStatus.RequestMode.con)
 					.setIdentity(identity)
 					.setSecret(secret)
 					.setObservedUri(null);
-
 			this.eventPublisher.publishEvent(this.connectionStatus);
 		}
-		return "Connected to " + this.connectionStatus;
+
+		return this.ping("/");
 	}
 
 	@ShellMethod(value = "Check CoAP resources availability", group = SHELL_CONNECTIVITY_GROUP)
 	@ShellMethodAvailability({ "availabilityCheck" })
 	public String ping(
 			@ShellOption(defaultValue = "/", help = "URI path", valueProvider = UriPathValueProvider.class) String path) {
+		return (this.pingInternal(path)) ? green("available") : red("not available");
+	}
+
+	private boolean pingInternal(
+			@ShellOption(defaultValue = "/", help = "URI path", valueProvider = UriPathValueProvider.class) String path) {
 
 		String before = this.coapClient.getURI();
 		try {
 			this.coapClient.setURI(this.coapClient.getURI() + path);
-			boolean available = this.coapClient.ping(5000);
-			return (available) ? green("available") : red("not available");
+			return this.coapClient.ping(5000);
 		}
 		finally {
 			this.coapClient.setURI(before);
@@ -392,7 +401,8 @@ public class CoapShellCommands implements ApplicationEventPublisherAware {
 				@Override
 				public void onLoad(CoapResponse response) {
 					observerResponses
-							.append(cyan("OBSERVE Response (" + connectionStatus.getObservedUri() + "):")).append(StringUtil.lineSeparator())
+							.append(cyan("OBSERVE Response (" + connectionStatus.getObservedUri() + "):"))
+							.append(StringUtil.lineSeparator())
 							.append(cyan(PrintUtils.prettyPrint(response))).append(StringUtil.lineSeparator());
 				}
 
@@ -488,16 +498,13 @@ public class CoapShellCommands implements ApplicationEventPublisherAware {
 		return new CoapHandler() {
 			@Override
 			public void onLoad(CoapResponse response) {
-				terminal.writer()
-						.append(cyan(String.format("\nAsync (%s)\n %s \n", coapClient.getURI(), PrintUtils.prettyPrint(response))))
-						.flush();
+				terminal.writer().append(cyan(String.format("\nAsync (%s)\n %s \n", coapClient.getURI(),
+						PrintUtils.prettyPrint(response)))).flush();
 			}
 
 			@Override
 			public void onError() {
-				terminal.writer()
-						.append(red(String.format("\nAsync (%s) Failure!!\n", coapClient.getURI())))
-						.flush();
+				terminal.writer().append(red(String.format("\nAsync (%s) Failure!!\n", coapClient.getURI()))).flush();
 			}
 		};
 	}

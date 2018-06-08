@@ -11,17 +11,15 @@ projects and the https://spring.io/projects/spring-boot[SpringBoot] programming 
 image:https://raw.githubusercontent.com/tzolov/coap-shell/master/src/test/resources/coap-shell-demo2.gif[CoAP Shell Demo]
 
 === Features
-
-* Connects to the https://tools.ietf.org/html/rfc7252#section-6.1[coap:] (e.g. UDP) and the secured https://tools.ietf.org/html/rfc7252#section-6.2[coaps:] (e.g. DTLS) CoAP endpoints.
-* Supports synchronous and asynchronous (with `--asynch` command argument) CoAP message exchanges.
-* Supports CoAP resource state https://tools.ietf.org/html/rfc7641[observing]. One can start a resource observe session (`observe <resource uri>`), check for received updates (`observer show updates`) and cancel the observe session (`observer stop`). Shell allows observing a single resource at any give time.
-* Supports https://tools.ietf.org/html/draft-ietf-core-observe-08#section-3.5[conformable] and non-conformable message exchange.
-* Facilitates https://tools.ietf.org/html/rfc7252#section-7.2[discovery] of resources offered by a CoAP endpoint. Allows filtering by content-type, resource type, href and so on.
-* Auto-completion is provided the `commands` as well as for command arguments  such as URI paths, content types and so on.
-* Response visualization and payload formatting.
+* Plain https://tools.ietf.org/html/rfc7252#section-6.1[coap:] and secured https://tools.ietf.org/html/rfc7252#section-6.2[coaps:] endpoints (e.g. `UDP` and `DTLS` transports).
+* Synchronous and asynchronous (`--async` argument) message exchanges.
+* CoAP https://tools.ietf.org/html/rfc7641[Observing].
+* https://tools.ietf.org/html/draft-ietf-core-observe-08#section-3.5[Conformable] and `Non-conformable` message exchange.
+* CoAP https://tools.ietf.org/html/rfc7252#section-7.2[Discovery]. Filter by `href`, `ct`, `rt`, `obs` ...
+* `Command` auto-completion. `Argument` auto-completion for URI paths, content-types and so on.
+* Alternative Key/Trust Stores can be plugged in.
+* Self-executable jar compatible with any JKD8+ environment.
 * Basic support for the `IKEA Tradfri Gateway`.
-* Can plug different KeyStores and certificates.
-* Self-executable jar. Can be run on every Java 8 enabled environment.
 
 === Quick Start
 
