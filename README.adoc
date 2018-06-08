@@ -1,36 +1,40 @@
 = CoAP Shell
+https://bintray.com/big-data/maven/coap-shell/_latestVersion[ image:https://api.bintray.com/packages/big-data/maven/coap-shell/images/download.svg[Download] ]
 
-https://en.wikipedia.org/wiki/Constrained_Application_Protocol[CoAP] is a REST based web transfer protocol specialized for use with constrained nodes and constrained networks in the Internet of Things (IoT).
+https://en.wikipedia.org/wiki/Constrained_Application_Protocol[CoAP] is a RESTful web transfer protocol specialized for use with constrained nodes and constrained networks in the Internet of Things (IoT).
 
-The `CoAP Shell` java, Command Line Interface for interacting with CoAP resources. It can be used with un-secured `coap:` and secured `coaps:` (https://en.wikipedia.org/wiki/Datagram_Transport_Layer_Security[DTLS]) transports.
-The Shell can be used to explore the `IKEA TRÅDFRI Gateway` as well!. https://bintray.com/big-data/maven/coap-shell/_latestVersion[ image:https://api.bintray.com/packages/big-data/maven/coap-shell/images/download.svg[Download] ]
+The `CoAP Shell` is an interactive, command line interface for interacting with CoAP Server. Supports both `coap:` and `coaps:` schemas (e.g. UDP and (https://en.wikipedia.org/wiki/Datagram_Transport_Layer_Security[DTLS]).
+(The Shell can be used to explore the `IKEA TRÅDFRI Gateway` as well).
 
-The CoAP Shell leverages the https://projects.spring.io/spring-shell/[Spring Shell], https://www.eclipse.org/californium/[Californium (Cf)] and https://www.eclipse.org/californium/[Scandium (Sc)],
-projects and the https://spring.io/projects/spring-boot[SpringBoot] programming model. Build produces a single self-executable jar. Later can be used in any Java8 enabled environment. 
+The CoAP Shell is build on top of the https://projects.spring.io/spring-shell/[Spring Shell], https://www.eclipse.org/californium/[Californium (Cf)] and https://www.eclipse.org/californium/[Scandium (Sc)]
+projects. It is a https://spring.io/projects/spring-boot[SpringBoot] application, that builds into a single, self-executable jar and runs on any Java8+ environment.
 
 image:https://raw.githubusercontent.com/tzolov/coap-shell/master/src/test/resources/coap-shell-demo2.gif[CoAP Shell Demo]
 
 === Features
 * Plain https://tools.ietf.org/html/rfc7252#section-6.1[coap:] and secured https://tools.ietf.org/html/rfc7252#section-6.2[coaps:] endpoints (e.g. `UDP` and `DTLS` transports).
+* CoAP `get`, `put`, `post` and `delete` methods.
 * `Synchronous` and `Asynchronous` (`--async` argument) message exchanges.
 * CoAP https://tools.ietf.org/html/rfc7641[Observing].
 * https://tools.ietf.org/html/draft-ietf-core-observe-08#section-3.5[Confirmable] and `Non-Confirmable` message exchange.
 * CoAP https://tools.ietf.org/html/rfc7252#section-7.2[Discovery]. Filter by `href`, `ct`, `rt`, `obs` ...
-* `Command` auto-completion. `Argument` auto-completion for URI paths, content-types and so on.
+* TAB auto-completion for `command` and `argument` auto-completion.
+* Intuitive command help support (type `help`).
 * Alternative Key/Trust Stores can be plugged in.
-* Self-executable jar compatible with any JKD8+ environment.
-* Basic support for the `IKEA Tradfri Gateway`.
+* Single, self-executable (`SpringBoot`) jar, working on any JKD8+ environment.
+* Basic support for `IKEA Tradfri Gateway`.
+
+The <a href="http://www.youtube.com/watch?feature=player_embedded&v=zhEGFfCJwTg" target="_blank">CoAP Shell video<img src="http://img.youtube.com/vi/zhEGFfCJwTg/0.jpg" alt="CoAP Shell video" width="240" height="180" border="10" /></a> highlights some of the basic features provided.
 
 === Quick Start
 
-==== https://www.youtube.com/watch?v=zhEGFfCJwTg&feature=youtu.be[CoAP Shell Quick Start Video]
-
 * Download a pre-build https://bintray.com/big-data/maven/download_file?file_path=io%2Fdatalake%2Fcoap%2Fcoap-shell%2F1.0.2%2Fcoap-shell-1.0.2.jar[coap-shell.jar] or build one yourself following the instructions in the next section
-
 * Start the shell
-`bash
+[source,bash]
+----
 java -jar ./coap-shell-1.0.2.jar
-`
+----
+
 [source,bash]
 ----
   _____     ___   ___     ______       ____
@@ -220,13 +224,11 @@ Then run the self-executable jar in the `target` folder.
 
 === Debugging
 
-Start the shell with `--logging.level=DEBUG` to enable debug log level for the entire application
- or `--logging.level.org.eclipse.californium=DEBUG` to debug only californium and scandium. Later
- is useful to debug the CoAP request message and DTLS interactions.
+Start the shell with `--logging.level=DEBUG` to enable debug log level for the entire applicationor `--logging.level.org.eclipse.californium=DEBUG`
+to debug only californium and scandium. Later is useful to debug the CoAP request message and DTLS interactions.
 
 For example:
-
 [source,bash]
 ----
-java -jar ./target/coap-shell-0.0.1-SNAPSHOT.jar --logging.level.org.eclipse.californium=DEBUG
+java -jar ./target/coap-shell-1.0.3-SNAPSHOT.jar --logging.level.org.eclipse.californium=DEBUG
 ----
