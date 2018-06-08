@@ -12,9 +12,9 @@ image:https://raw.githubusercontent.com/tzolov/coap-shell/master/src/test/resour
 
 === Features
 * Plain https://tools.ietf.org/html/rfc7252#section-6.1[coap:] and secured https://tools.ietf.org/html/rfc7252#section-6.2[coaps:] endpoints (e.g. `UDP` and `DTLS` transports).
-* Synchronous and asynchronous (`--async` argument) message exchanges.
+* `Synchronous` and `Asynchronous` (`--async` argument) message exchanges.
 * CoAP https://tools.ietf.org/html/rfc7641[Observing].
-* https://tools.ietf.org/html/draft-ietf-core-observe-08#section-3.5[Conformable] and `Non-conformable` message exchange.
+* https://tools.ietf.org/html/draft-ietf-core-observe-08#section-3.5[Confirmable] and `Non-Confirmable` message exchange.
 * CoAP https://tools.ietf.org/html/rfc7252#section-7.2[Discovery]. Filter by `href`, `ct`, `rt`, `obs` ...
 * `Command` auto-completion. `Argument` auto-completion for URI paths, content-types and so on.
 * Alternative Key/Trust Stores can be plugged in.
@@ -37,22 +37,24 @@ java -jar ./coap-shell-1.0.2.jar
  / ___/__  / _ | / _ \   / __/ /  ___ / / /
 / /__/ _ \/ __ |/ ___/  _\ \/ _ \/ -_) / /
 \___/\___/_/ |_/_/     /___/_//_/\__/_/_/
-CoAP Shell (v1.02)
+CoAP Shell (v1.0.2)
+For assistance hit TAB or type "help".
 
-unconnected:>
+server-unknown:>
 ----
 
 * Connect to CoAP server (such as `coaps://californium.eclipse.org:5684` or `coap://coap.me`)
 [source,bash]
 ----
-unconnected:>connect coaps://californium.eclipse.org:5684
-coaps://californium.eclipse.org:5684[CON]:>
+server-unknown:>connect coaps://californium.eclipse.org:5684
+available
+coaps://californium.eclipse.org:5684:>
 ----
 
 * Discover the available CoAP resources:
 [source,bash]
 ----
-coaps://californium.eclipse.org:5684[CON]:>discover
+coaps://californium.eclipse.org:5684:>discover --query href=/*
 ┌─────────────────┬───────────────────┬────────────────────────────────────┬───────────────┬──────────────────┬────────────────┐
 │Path (href)      │Resource Types (rt)│Content Types (ct)                  │Interfaces (if)│Size estimate (sz)│Observable (obs)│
 ├─────────────────┼───────────────────┼────────────────────────────────────┼───────────────┼──────────────────┼────────────────┤
@@ -66,7 +68,7 @@ coaps://californium.eclipse.org:5684[CON]:>discover
 * Get resource data
 [source,bash]
 ----
-coaps://californium.eclipse.org:5684[CON]:>get /multi-format --accept application/xml
+coaps://californium.eclipse.org:5684:>get /multi-format --accept application/xml
 CoAP GET: coaps://californium.eclipse.org:5684/multi-format
 -------------------------------- CoAP Response ---------------------------------
  MID    : 53611
@@ -116,7 +118,7 @@ The response `IDENTITY: myIkeaGatewayIdentity , PRE_SHARED_KEY: X5xyYM41qFS7vNa9
 [source,bash]
 ----
 server-unknown:>connect coaps://192.168.178.151:5684 --identity myIkeaGatewayIdentity --secret X5xyYM41qFS7vN10
-Connected to [coaps://192.168.178.151:5684], [con], [non-observable]
+available
 coaps://192.168.178.151:5684:>
 ----
 
@@ -202,8 +204,6 @@ CoAP GET: coaps://192.168.178.151:5684//15001/65539
 --------------------------------------------------------------------------------
 
 ----
-
-
 
 === How to Build
 
