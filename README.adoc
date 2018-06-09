@@ -216,9 +216,12 @@ Status : 205-Reset Content, Payload: 220B
 --------------------------------------------------------------------------------
 ----
 
-NOTE: The CoAP Gateway follows *partially* some of the https://github.com/IPSO-Alliance/pub/tree/master/reg[IPSO] Smart Object specs.
+NOTE: The CoAP Gateway follows (*partially!*) some of the https://github.com/IPSO-Alliance/pub/tree/master/reg[IPSO] Smart Object specs.
 For example the https://github.com/IPSO-Alliance/pub/blob/master/reg/xml/3311.xml["3311"] block corresponds to the `Light Control` object and the `5850` is an mandatory `On/Off` attribute within this object.
 Similarly the https://github.com/IPSO-Alliance/pub/blob/master/reg/xml/3.xml["3"] section corresponds to the `Device` manufacturer object spec.
+The gateway is not fully compliant with `IPSO` spec as some mandatory are missing. Also the `9xxx` codes are gateway proprietary.
+https://github.com/eclipse/smarthome/blob/master/extensions/binding/org.eclipse.smarthome.binding.tradfri/src/main/java/org/eclipse/smarthome/binding/tradfri/TradfriBindingConstants.java[Here]
+ some information is available about those proprietary codes.
 
 * Next you can use CoAP's `PUT` method with JSON payload to turn a light On or Off.
 
