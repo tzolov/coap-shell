@@ -16,35 +16,16 @@
 package io.datalake.coap.coapshell.provider;
 
 import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
-import org.springframework.core.MethodParameter;
-import org.springframework.shell.CompletionContext;
-import org.springframework.shell.CompletionProposal;
-import org.springframework.shell.standard.ValueProviderSupport;
 import org.springframework.stereotype.Component;
 
 /**
  * @author Christian Tzolov
  */
 @Component
-public class DiscoveryQueryValueProvider extends ValueProviderSupport {
+public class DiscoveryQueryValueProvider extends StringListValueProvider {
 
-	private final static String[] DISCOVERY_QUERY_OPTIONS = new String[] { "href", "rt", "ct", "es", "obs" };
-
-	@Override
-	public List<CompletionProposal> complete(MethodParameter parameter,
-			CompletionContext completionContext, String[] hints) {
-
-		return Arrays.stream(DISCOVERY_QUERY_OPTIONS)
-				.filter(o -> o.startsWith(prefix(completionContext)))
-				.map(contentType -> new CompletionProposal(contentType))
-				.collect(Collectors.toList());
-	}
-
-	private String prefix(CompletionContext completionContext) {
-		final String prefix = completionContext.currentWordUpToCursor();
-		return (prefix != null) ? prefix : "";
+	public DiscoveryQueryValueProvider() {
+		super(Arrays.asList("href", "rt", "ct", "es", "obs"));
 	}
 }

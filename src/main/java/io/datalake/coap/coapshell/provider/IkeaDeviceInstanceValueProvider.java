@@ -15,43 +15,11 @@
  */
 package io.datalake.coap.coapshell.provider;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
-
-import org.springframework.core.MethodParameter;
-import org.springframework.shell.CompletionContext;
-import org.springframework.shell.CompletionProposal;
-import org.springframework.shell.standard.ValueProviderSupport;
 import org.springframework.stereotype.Component;
 
 /**
  * @author Christian Tzolov
  */
 @Component
-public class IkeaDeviceInstanceValueProvider extends ValueProviderSupport {
-
-	private ConcurrentHashMap<String, String> hintList = new ConcurrentHashMap<>();
-
-	@Override
-	public List<CompletionProposal> complete(MethodParameter parameter, CompletionContext completionContext, String[] hints) {
-		List<CompletionProposal> result = new ArrayList<>();
-		for (String hint : this.hintList.keySet()) {
-			String prefix = completionContext.currentWordUpToCursor();
-			if (prefix == null) {
-				prefix = "";
-			}
-			if (hint.startsWith(prefix)) {
-				result.add(new CompletionProposal(hint));
-			}
-		}
-		return result;
-	}
-
-	public void updateHints(List<String> hintsUpdate) {
-		this.hintList.clear();
-		this.hintList.putAll(
-				hintsUpdate.stream().collect(Collectors.toMap(h -> h, h -> "")));
-	}
+public class IkeaDeviceInstanceValueProvider extends StringListValueProvider {
 }

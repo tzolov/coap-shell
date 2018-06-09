@@ -72,7 +72,7 @@ public class PrintUtils {
 		sb.append(String.format("MID: %d, Type: %s, Token: %s, RTT: %sms", r.getMID(), cyan(r.getType().toString()), r.getTokenString(), rtt)).append(StringUtil.lineSeparator());
 		sb.append(String.format("Options: %s", r.getOptions().toString())).append(StringUtil.lineSeparator());
 		sb.append(String.format("Status : %s, Payload: %dB", status, r.getPayloadSize())).append(StringUtil.lineSeparator());
-		sb.append(green("----------------------------------- Payload ------------------------------------")).append(StringUtil.lineSeparator());
+		sb.append(green("................................... Payload ....................................")).append(StringUtil.lineSeparator());
 		if (r.getPayloadSize() > 0 && MediaTypeRegistry.isPrintable(r.getOptions().getContentFormat())) {
 			sb.append(prettyPayload(r)).append(StringUtil.lineSeparator());
 		}
@@ -88,49 +88,11 @@ public class PrintUtils {
 		else if (r.getOptions().toString().contains(MimeTypeUtils.APPLICATION_XML_VALUE)) {
 			return cyan(prettyXml(r.getPayloadString()));
 		}
+		else if (r.getOptions().toString().contains("application/link-format")) {
+			return cyan(prettyLink(r.getPayloadString()));
+		}
 		return r.getPayloadString();
 	}
-
-	//public static String prettyPrint2(CoapResponse coapResponse) {
-	//
-	//	if (coapResponse == null) {
-	//		return red("NULL response!");
-	//	}
-	//
-	//	Response r = coapResponse.advanced();
-	//
-	//	int httpStatusCode = Integer.valueOf(r.getCode().codeClass) * 100 + Integer.valueOf(r.getCode().codeDetail);
-	//	HttpStatus httpStatus = HttpStatus.resolve(httpStatusCode);
-	//	String status = colorText(String.format("%s-%s", httpStatusCode, httpStatus.getReasonPhrase()), httpStatus.isError() ? AnsiColor.RED : AnsiColor.DEFAULT);
-	//
-	//	StringBuilder sb = new StringBuilder();
-	//	sb.append(green("-------------------------------- CoAP Response ---------------------------------")).append(StringUtil.lineSeparator());
-	//	sb.append(String.format(" MID    : %d", r.getMID())).append(StringUtil.lineSeparator());
-	//	sb.append(String.format(" Token  : %s", r.getTokenString())).append(StringUtil.lineSeparator());
-	//	sb.append(String.format(" Type   : %s", r.getType().toString())).append(StringUtil.lineSeparator());
-	//	sb.append(String.format(" Status : %s", status)).append(StringUtil.lineSeparator());
-	//	sb.append(String.format(" Options: %s", r.getOptions().toString())).append(StringUtil.lineSeparator());
-	//	if (r.getRTT() != null) {
-	//		sb.append(String.format(" RTT    : %d ms", r.getRTT())).append(StringUtil.lineSeparator());
-	//	}
-	//	sb.append(String.format(" Payload: %d Bytes", r.getPayloadSize())).append(StringUtil.lineSeparator());
-	//	if (r.getPayloadSize() > 0 && MediaTypeRegistry.isPrintable(r.getOptions().getContentFormat())) {
-	//		sb.append(green("............................... Body Payload ...................................")).append(StringUtil.lineSeparator());
-	//		if (r.getOptions().toString().contains(MimeTypeUtils.APPLICATION_JSON_VALUE)) {
-	//			sb.append(cyan(prettyJson(r.getPayloadString())));
-	//		}
-	//		else if (r.getOptions().toString().contains(MimeTypeUtils.APPLICATION_XML_VALUE)) {
-	//			sb.append(cyan(prettyXml(r.getPayloadString())));
-	//		}
-	//		else {
-	//			sb.append(r.getPayloadString());
-	//		}
-	//		sb.append(StringUtil.lineSeparator());
-	//	}
-	//	sb.append(green("--------------------------------------------------------------------------------"));
-	//
-	//	return sb.toString();
-	//}
 
 	private static String prettyJson(String text) {
 		try {
@@ -139,6 +101,19 @@ public class PrintUtils {
 			return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonObject);
 		}
 		catch (IOException io) {
+			return text;
+		}
+	}
+
+	private static String prettyLink(String text) {
+		try {
+			StringBuffer sb = new StringBuffer();
+			for (String link : text.split(",")) {
+				sb.append(link).append(StringUtil.lineSeparator());
+			}
+			return sb.toString();
+		}
+		catch (Exception io) {
 			return text;
 		}
 	}

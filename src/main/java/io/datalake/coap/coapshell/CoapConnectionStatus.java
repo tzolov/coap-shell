@@ -89,6 +89,7 @@ public class CoapConnectionStatus {
 
 	@Override
 	public String toString() {
-		return String.format("[%s], [%s], [%s]", baseUri, mode, (isObserveActivated()) ? "observable" : "non-observable");
+		return String.format("[%s], [%s], [%s]", baseUri, mode,
+				(isObserveActivated()) ? "observable" : "non-observable");
 	}
 }

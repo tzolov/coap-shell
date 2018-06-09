@@ -183,7 +183,7 @@ public class IkeaCoapShellCommands {
 		ObjectMapper mapper = new ObjectMapper();
 		String json = getJson("/15001");
 		Integer[] deviceIds = mapper.readValue(json, Integer[].class);
-		this.instanceValueProvider.updateHints(Arrays.stream(deviceIds)
+		this.instanceValueProvider.updatePrefixHints(Arrays.stream(deviceIds)
 				.map(String::valueOf).collect(Collectors.toList()));
 		List<Row> list = new ArrayList<>();
 		for (int d : deviceIds) {
@@ -284,5 +284,4 @@ public class IkeaCoapShellCommands {
 				? Availability.available()
 				: Availability.unavailable("you are not connected to IKEA gateway");
 	}
-
 }

@@ -30,6 +30,7 @@ import io.datalake.coap.coapshell.CoapConnectionStatus;
 import io.datalake.coap.coapshell.provider.ContentTypeValueProvider;
 import io.datalake.coap.coapshell.provider.DiscoveryQueryValueProvider;
 import io.datalake.coap.coapshell.provider.UriPathValueProvider;
+import io.datalake.coap.coapshell.provider.UriSchemaValueProvider;
 import io.datalake.coap.coapshell.util.CoapDtlsSupport;
 import io.datalake.coap.coapshell.util.PrintUtils;
 import io.datalake.coap.coapshell.util.Row;
@@ -66,7 +67,6 @@ import org.springframework.util.StringUtils;
 
 import static io.datalake.coap.coapshell.util.PrintUtils.cyan;
 import static io.datalake.coap.coapshell.util.PrintUtils.green;
-import static io.datalake.coap.coapshell.util.PrintUtils.normal;
 import static io.datalake.coap.coapshell.util.PrintUtils.red;
 
 /**
@@ -102,7 +102,7 @@ public class CoapShellCommands implements ApplicationEventPublisherAware {
 
 	@ShellMethod(value = "Connect to CoAP server", group = SHELL_CONNECTIVITY_GROUP)
 	public String connect(
-			@ShellOption(help = "URI of the server to connect to") URI uri,
+			@ShellOption(help = "URI of the server to connect to", valueProvider = UriSchemaValueProvider.class) URI uri,
 			@ShellOption(defaultValue = ShellOption.NULL, help = "pre-shared key identity") String identity,
 			@ShellOption(defaultValue = ShellOption.NULL, help = "pre-shared key secret") String secret,
 			@ShellOption(defaultValue = "false", help = "disable argument auto-completion pre-initialization") boolean disableDiscover) {
@@ -182,7 +182,7 @@ public class CoapShellCommands implements ApplicationEventPublisherAware {
 			this.coapClient.getEndpoint().destroy();
 		}
 		this.coapClient.shutdown();
-		this.coapUriPathValueProvider.updateHints(new ArrayList<>());
+		this.coapUriPathValueProvider.updatePrefixHints(new ArrayList<>());
 		this.coapClient = null;
 		this.connectionStatus.reset();
 		this.eventPublisher.publishEvent(this.connectionStatus);
@@ -209,7 +209,7 @@ public class CoapShellCommands implements ApplicationEventPublisherAware {
 			resources = new HashSet<>();
 		}
 
-		this.coapUriPathValueProvider.updateHints(
+		this.coapUriPathValueProvider.updatePrefixHints(
 				resources.stream().map(WebLink::getURI).collect(Collectors.toList()));
 
 		TableModel model = new BeanListTableModel(formatDiscoveryResult(resources), headers);

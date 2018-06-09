@@ -15,11 +15,16 @@
  */
 package io.datalake.coap.coapshell.provider;
 
+import java.util.Arrays;
+
 import org.springframework.stereotype.Component;
 
 /**
  * @author Christian Tzolov
  */
 @Component
-public class UriPathValueProvider extends StringListValueProvider {
+public class UriSchemaValueProvider extends StringListValueProvider {
+	public UriSchemaValueProvider() {
+		super(Arrays.asList("coap://", "coaps://"));
+	}
 }
