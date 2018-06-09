@@ -94,7 +94,7 @@ Status : 205-Reset Content, Payload: 63B
 * Use `help` to the available commands and how are they used.
 * Use `TAB` for command and argument auto-completion.
 
-NOTE: If you see `org.eclipse.californium.elements.EndpointMismatchException` error message that means that your DTLS session has expired
+CAUTION: If you see `org.eclipse.californium.elements.EndpointMismatchException` error message that means that your DTLS session has expired
 and you have to re-connect again.
 
 === IKEA TRÅDFRI Gateway Support
@@ -180,7 +180,7 @@ coaps://192.168.178.151:5684:>ikea device list
 
 ----
 
-* Use the CoAP GET check the raw message response
+* Use the CoAP's `GET` check the raw message response
 
 [source,bash]
 ----
@@ -216,7 +216,29 @@ Status : 205-Reset Content, Payload: 220B
 --------------------------------------------------------------------------------
 ----
 
-NOTE: If you see `org.eclipse.californium.elements.EndpointMismatchException` message that means that your DTLS session has expired
+NOTE: The CoAP Gateway *partially* follows some of the https://github.com/IPSO-Alliance/pub/tree/master/reg[IPSO] object specification.
+For example the https://github.com/IPSO-Alliance/pub/blob/master/reg/xml/3311.xml["3311"] block corresponds to the `Light Control` object and `5850` is an mandatory `On/Off` attribute of this object.
+Similarly the https://github.com/IPSO-Alliance/pub/blob/master/reg/xml/3.xml["3"] section corresponds to the `Device` manufacturer object specification.
+
+* Next you can use CoAP's `PUT` method with JSON payload to turn a light On or Off.
+
+Set `5850` to `1` for turning the lamp ON:
+
+[source,bash]
+----
+coaps://192.168.178.151:5684:>put //15001/65539 --payload '{"3311":[{"5850":1}]}'
+----
+
+or `0` for turning it OFF:
+
+[source,bash]
+----
+coaps://192.168.178.151:5684:>put //15001/65539 --payload '{"3311":[{"5850":1}]}'
+----
+
+Use the `//15001/<DEVICE ID>` template to address the device you want.
+
+CAUTION: If you see `org.eclipse.californium.elements.EndpointMismatchException` message that means that your DTLS session has expired
 due to IDLE timeout. You have to re-connect again.
 
 === How to Build
