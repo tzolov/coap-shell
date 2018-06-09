@@ -4,8 +4,9 @@ https://bintray.com/big-data/maven/coap-shell/_latestVersion[ image:https://api.
 
 https://en.wikipedia.org/wiki/Constrained_Application_Protocol[CoAP] is a RESTful web transfer protocol specialized for use with constrained nodes and constrained networks in the Internet of Things (IoT).
 
-The `CoAP Shell` is an interactive, command line interface for interacting with CoAP Server. Supports both `coap:` and `coaps:` schemas (e.g. UDP and (https://en.wikipedia.org/wiki/Datagram_Transport_Layer_Security[DTLS]).
-(The Shell can be used to explore the `IKEA TRÅDFRI Gateway` as well).
+The https://github.com/tzolov/coap-shell[CoAP Shell] provides an interactive, command line interface for interacting with CoAP enabled servers.
+It supports the `coap:` and `coaps:` schemas (e.g. UDP and https://en.wikipedia.org/wiki/Datagram_Transport_Layer_Security[DTLS]).
+It also can manage your `IKEA TRÅDFRI` smart lights set ;)
 
 The CoAP Shell is build on top of the https://projects.spring.io/spring-shell/[Spring Shell], https://www.eclipse.org/californium/[Californium (Cf)] and https://www.eclipse.org/californium/[Scandium (Sc)]
 projects. It is a https://spring.io/projects/spring-boot[SpringBoot] application, that builds into a single, self-executable jar and runs on any Java8+ environment.
@@ -31,11 +32,11 @@ https://youtu.be/zhEGFfCJwTg[image:https://raw.githubusercontent.com/tzolov/coap
 
 === Quick Start
 
-* Get a pre-build https://bintray.com/big-data/maven/download_file?file_path=io%2Fdatalake%2Fcoap%2Fcoap-shell%2F1.0.3%2Fcoap-shell-1.0.3.jar[coap-shell.jar] or build one yourself following the instructions further down.
-* Then start the shell like this
+* Get a pre-build https://bintray.com/big-data/maven/download_file?file_path=io%2Fdatalake%2Fcoap%2Fcoap-shell%2F1.0.4%2Fcoap-shell-1.0.4.jar[coap-shell.jar] or build one yourself following the instructions further down.
+* Then start the shell:
 [source,bash]
 ----
-java -jar ./coap-shell-1.0.3.jar
+java -jar ./coap-shell-1.0.4.jar
 ----
 
 [source,bash]
@@ -44,13 +45,13 @@ java -jar ./coap-shell-1.0.3.jar
  / ___/__  / _ | / _ \   / __/ /  ___ / / /
 / /__/ _ \/ __ |/ ___/  _\ \/ _ \/ -_) / /
 \___/\___/_/ |_/_/     /___/_//_/\__/_/_/
-CoAP Shell (v1.0.3)
+CoAP Shell (v1.0.4)
 For assistance hit TAB or type "help".
 
 server-unknown:>
 ----
 
-* Connect to CoAP server (such as `coaps://californium.eclipse.org:5684` or `coap://coap.me`)
+* Connect to a CoAP server (such as `coaps://californium.eclipse.org:5684` or `coap://coap.me`)
 [source,bash]
 ----
 server-unknown:>connect coaps://californium.eclipse.org:5684
@@ -91,6 +92,9 @@ Status : 205-Reset Content, Payload: 63B
 * Use `help` to the available commands and how are they used.
 * Use `TAB` for command and argument auto-completion.
 
+NOTE: If you see `org.eclipse.californium.elements.EndpointMismatchException` error message that means that your DTLS session has expired
+and you have to re-connect again.
+
 === IKEA TRÅDFRI Gateway Support
 
 * Generate Gateway pre-share key
@@ -113,11 +117,13 @@ server-unknown:>ikea gateway key --ip 192.168.178.151 --identity myIkeaGatewayId
 IDENTITY: myIkeaGatewayIdentity , PRE_SHARED_KEY: X5xyYM41qFS7vN10
 ----
 
-The `192.168.178.151` is the IP address of the gateway in your network. Please find your gateway's IP and use it instead!
+The `192.168.178.151` is the IP address of the gateway in your network. You should find the IP of your IKEA gateway box and use it instead!
 The `myIkeaGatewayIdentity` is the new identity to be registered with the gateway. the `<Gateway Code Label>` is printed on the back side of the Gateway box.
-The response `IDENTITY: myIkeaGatewayIdentity , PRE_SHARED_KEY: X5xyYM41qFS7vNa9` will contain the new credential created for you. Store the generated identity and secret so you cna use them to connect interact with your IKEA gateway.
 
-* Use the generated credentials to connect to gateway
+The response `IDENTITY: myIkeaGatewayIdentity , PRE_SHARED_KEY: X5xyYM41qFS7vNa9` contains the new credential created for you.
+Store the generated identity and secret so you can use them to interact with your IKEA gateway.
+
+* Use the generated credentials to connect to the gateway
 
 [source,bash]
 ----
@@ -125,8 +131,9 @@ server-unknown:>connect coaps://192.168.178.151:5684 --identity myIkeaGatewayIde
 available
 coaps://192.168.178.151:5684:>
 ----
+(Again substitute with the IP of your gateway. Use the identity and secret created in the previous step)
 
-* List available devices
+* List all devices registered with the gateway
 
 [source,bash]
 ----
@@ -144,7 +151,7 @@ coaps://192.168.178.151:5684:>ikea device list
 └────────┴─────────┴──────┴───────────────────────────────┴────────┴───────────┴──────┘
 ----
 
-* Turn on and off a lamp
+* Turn a lamp on/off
 
 [source,bash]
 ----
@@ -202,8 +209,10 @@ Status : 205-Reset Content, Payload: 220B
   }
 }
 --------------------------------------------------------------------------------
-
 ----
+
+NOTE: If you see `org.eclipse.californium.elements.EndpointMismatchException` message that means that your DTLS session has expired
+due to IDLE timeout. You have to re-connect again.
 
 === How to Build
 
@@ -226,5 +235,5 @@ to debug only californium and scandium. Later is useful to debug the CoAP reques
 For example:
 [source,bash]
 ----
-java -jar ./target/coap-shell-1.0.3-SNAPSHOT.jar --logging.level.org.eclipse.californium=DEBUG
+java -jar ./target/coap-shell-1.0.5-SNAPSHOT.jar --logging.level.org.eclipse.californium=DEBUG
 ----
