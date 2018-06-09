@@ -14,17 +14,17 @@ projects. It is a https://spring.io/projects/spring-boot[SpringBoot] application
 image:https://raw.githubusercontent.com/tzolov/coap-shell/master/src/test/resources/coap-shell-demo2.gif[CoAP Shell Demo]
 
 === Features
-* Plain https://tools.ietf.org/html/rfc7252#section-6.1[coap:] and secured https://tools.ietf.org/html/rfc7252#section-6.2[coaps:] endpoints (e.g. `UDP` and `DTLS` transports).
-* CoAP `get`, `put`, `post` and `delete` methods.
-* CoAP https://tools.ietf.org/html/rfc7641[Observing].
-* CoAP https://tools.ietf.org/html/rfc7252#section-7.2[Discovery] with filters for `href`, `ct`, `rt`, `obs` ...
-* `Synchronous` and `Asynchronous` (`--async` argument) message exchanges.
-* https://tools.ietf.org/html/draft-ietf-core-observe-08#section-3.5[Confirmable] and `Non-Confirmable` message exchange.
-* TAB auto-completion for `command` and `arguments`.
-* Command help support (type `help`).
-* Alternative Key/Trust Stores could be plugged in.
-* `SpringBoot`, self-executable jar, running on any Java 8+ environment.
-* Basic support for `IKEA Tradfri Gateway`.
+- Plain https://tools.ietf.org/html/rfc7252#section-6.1[coap:] and secured https://tools.ietf.org/html/rfc7252#section-6.2[coaps:] endpoints (e.g. `UDP` and `DTLS` transports).
+- CoAP `get`, `put`, `post` and `delete` methods.
+- CoAP https://tools.ietf.org/html/rfc7641[Observing].
+- CoAP https://tools.ietf.org/html/rfc7252#section-7.2[Discovery] with filters for `href`, `ct`, `rt`, `obs` ...
+- `Synchronous` and `Asynchronous` (`--async` argument) message exchanges.
+- https://tools.ietf.org/html/draft-ietf-core-observe-08#section-3.5[Confirmable] and `Non-Confirmable` message exchange.
+- TAB auto-completion for `command` and `arguments`.
+- Command help support (type `help`).
+- Alternative Key/Trust Stores could be plugged in.
+- https://spring.io/projects/spring-boot[SpringBoot], self-executable jar, running on any Java 8+ environment.
+- Basic support for `IKEA Tradfri Gateway`.
 
 The https://youtu.be/zhEGFfCJwTg[CoAP Shell video], highlights some of those features:
 
@@ -63,6 +63,7 @@ coaps://californium.eclipse.org:5684:>
 [source,bash]
 ----
 coaps://californium.eclipse.org:5684:>discover --query href=/*
+
 ┌─────────────────┬──────────────────┬────────────────────────────────────┬──────────────┬─────────┬────────────────┐
 │Path [href]      │Resource Type [rt]│Content Type [ct]                   │Interface [if]│Size [sz]│Observable [obs]│
 ├─────────────────┼──────────────────┼────────────────────────────────────┼──────────────┼─────────┼────────────────┤
@@ -78,6 +79,7 @@ coaps://californium.eclipse.org:5684:>discover --query href=/*
 [source,bash]
 ----
 coaps://californium.eclipse.org:5684:>get /multi-format --accept application/xml
+
 ----------------------------------- Response -----------------------------------
 GET coaps://californium.eclipse.org:5684/multi-format
 MID: 31291, Type: ACK, Token: [0a10eaafaf3d024f], RTT: 123ms
@@ -103,6 +105,7 @@ Use the `ikea gateway key` to register a new account (e.g. identity + secret) to
 [source,bash]
 ----
 server-unknown:>ikea gateway key --ip 192.168.178.151 --identity myIkeaGatewayIdentity --security-code <Gateway Code Label>
+
 -------------------------------- CoAP Response ---------------------------------
  MID    : 58318
  Token  : [60d1dcf80d8eb84f]
@@ -138,6 +141,7 @@ coaps://192.168.178.151:5684:>
 [source,bash]
 ----
 coaps://192.168.178.151:5684:>ikea device list
+
 ┌────────┬─────────┬──────┬───────────────────────────────┬────────┬───────────┬──────┐
 │Instance│Name     │Type  │Model                          │Firmware│Battery [%]│ON/OFF│
 ├────────┼─────────┼──────┼───────────────────────────────┼────────┼───────────┼──────┤
@@ -181,6 +185,7 @@ coaps://192.168.178.151:5684:>ikea device list
 [source,bash]
 ----
 coaps://192.168.178.151:5684:>get //15001/65539
+
 ----------------------------------- Response -----------------------------------
 GET coaps://192.168.178.151:5684//15001/65539
 MID: 30881, Type: ACK, Token: [260128b68be34371], RTT: 5ms
