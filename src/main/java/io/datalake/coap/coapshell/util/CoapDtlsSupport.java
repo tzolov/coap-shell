@@ -90,7 +90,7 @@ public class CoapDtlsSupport {
 		KeyStore trustStore = KeyStore.getInstance("JKS");
 		trustStore.load(getInputStream(this.properties.getTrustStoreLocation()), this.properties.getTrustStorePassword().toCharArray());
 
-		// load trustStore containing Artik Verisign intermediary
+		// load trustStore
 		TrustManagerFactory trustMgrFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
 		trustMgrFactory.init(trustStore);
 		TrustManager trustManagers[] = trustMgrFactory.getTrustManagers();

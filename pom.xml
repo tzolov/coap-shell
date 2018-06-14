@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>io.datalake.coap</groupId>
@@ -8,14 +9,21 @@
 	<packaging>jar</packaging>
 
 	<name>CoAP Shell</name>
-	<description>Constrained Application Protocol (CoAP) command line shell</description>
+	<description>Smart, command-line Shell for Constrained Application Protocol (CoAP)</description>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>2.0.2.RELEASE</version>
-		<relativePath /> <!-- lookup parent from repository -->
+		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
+
+	<contributors>
+		<contributor>
+			<name>Christian Tzolov</name>
+			<email>christian.tzolov@gmail.com</email>
+		</contributor>
+	</contributors>
 
 	<licenses>
 		<license>
@@ -44,6 +52,8 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>1.8</java.version>
 		<spring-boot-admin.version>2.0.0</spring-boot-admin.version>
+		<eclipse.californium.version>2.0.0-M10</eclipse.californium.version>
+		<spring-shell.version>2.0.0.RELEASE</spring-shell.version>
 	</properties>
 
 	<dependencies>
@@ -54,17 +64,17 @@
 		<dependency>
 			<groupId>org.springframework.shell</groupId>
 			<artifactId>spring-shell-starter</artifactId>
-			<version>2.0.0.RELEASE</version>
+			<version>${spring-shell.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.californium</groupId>
 			<artifactId>californium-core</artifactId>
-			<version>2.0.0-M10</version>
+			<version>${eclipse.californium.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.californium</groupId>
 			<artifactId>scandium</artifactId>
-			<version>2.0.0-M10</version>
+			<version>${eclipse.californium.version}</version>
 		</dependency>
 
 		<dependency>

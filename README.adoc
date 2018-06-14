@@ -15,28 +15,29 @@ image:https://raw.githubusercontent.com/tzolov/coap-shell/master/src/test/resour
 
 === Features
 - Plain https://tools.ietf.org/html/rfc7252#section-6.1[coap:] and secured https://tools.ietf.org/html/rfc7252#section-6.2[coaps:] endpoints (e.g. `UDP` and `DTLS` transports).
-- CoAP `get`, `put`, `post` and `delete` methods.
-- CoAP https://tools.ietf.org/html/rfc7641[Observing].
-- CoAP https://tools.ietf.org/html/rfc7252#section-7.2[Discovery] with filters for `href`, `ct`, `rt`, `obs` ...
+- CoAP `GET`, `PUT`, `POST` and `DELETE` methods.
+- CoAP Resource https://tools.ietf.org/html/rfc7641[Observing].
+- CoAP Resource https://tools.ietf.org/html/rfc7252#section-7.2[Discovery]. Filters by `href`, `ct`, `rt`, `obs` ...
 - `Synchronous` and `Asynchronous` (`--async` argument) message exchanges.
 - https://tools.ietf.org/html/draft-ietf-core-observe-08#section-3.5[Confirmable] and `Non-Confirmable` message exchange.
-- TAB auto-completion for `command` and `arguments`.
-- Command help support (type `help`).
-- Alternative Key/Trust Stores could be plugged in.
-- https://spring.io/projects/spring-boot[SpringBoot], self-executable jar, running on any Java 8+ environment.
+- `TAB` auto-completion for `commands` and `arguments`.
+- Extensive `commands` help (type `help`).
+- Plugable key/trust stores and credentials.
+- https://spring.io/projects/spring-boot[SpringBoot], self-executable jar, running in any Java 8+ environment.
 - Basic support for `IKEA Tradfri Gateway`.
 
-The https://youtu.be/zhEGFfCJwTg[CoAP Shell video], highlights some of those features:
+The https://youtu.be/zhEGFfCJwTg[CoAP Shell Video] highlights some of the features:
 
-https://youtu.be/zhEGFfCJwTg[image:https://raw.githubusercontent.com/tzolov/coap-shell/master/src/test/resources/coap-shell-video-log.png[CoAP Shell video]]
+https://youtu.be/zhEGFfCJwTg[image:https://raw.githubusercontent.com/tzolov/coap-shell/master/src/test/resources/coap-shell-video-log.png[CoAP Shell video,157,54]]
+
 
 === Quick Start
 
-* Get a pre-build https://bintray.com/big-data/maven/download_file?file_path=io%2Fdatalake%2Fcoap%2Fcoap-shell%2F1.0.4%2Fcoap-shell-1.0.4.jar[coap-shell.jar] or build one yourself following the instructions further down.
+* Get a pre-build https://bintray.com/big-data/maven/download_file?file_path=io%2Fdatalake%2Fcoap%2Fcoap-shell%2F1.0.5%2Fcoap-shell-1.0.5.jar[coap-shell.jar] or build one yourself following the instructions further down.
 * Then start the shell:
 [source,bash]
 ----
-java -jar ./coap-shell-1.0.4.jar
+java -jar ./coap-shell-1.0.5.jar
 ----
 
 [source,bash]
@@ -45,7 +46,7 @@ java -jar ./coap-shell-1.0.4.jar
  / ___/__  / _ | / _ \   / __/ /  ___ / / /
 / /__/ _ \/ __ |/ ___/  _\ \/ _ \/ -_) / /
 \___/\___/_/ |_/_/     /___/_//_/\__/_/_/
-CoAP Shell (v1.0.4)
+CoAP Shell (v1.0.5)
 For assistance hit TAB or type "help".
 
 server-unknown:>
@@ -219,9 +220,8 @@ Status : 205-Reset Content, Payload: 220B
 NOTE: The CoAP Gateway follows (*partially!*) some of the https://github.com/IPSO-Alliance/pub/tree/master/reg[IPSO] Smart Object specs.
 For example the https://github.com/IPSO-Alliance/pub/blob/master/reg/xml/3311.xml["3311"] block corresponds to the `Light Control` object and the `5850` is an mandatory `On/Off` attribute within this object.
 Similarly the https://github.com/IPSO-Alliance/pub/blob/master/reg/xml/3.xml["3"] section corresponds to the `Device` manufacturer object spec.
-The gateway is not fully compliant with `IPSO` spec as some mandatory are missing. Also the `9xxx` codes are gateway proprietary.
-https://github.com/eclipse/smarthome/blob/master/extensions/binding/org.eclipse.smarthome.binding.tradfri/src/main/java/org/eclipse/smarthome/binding/tradfri/TradfriBindingConstants.java[Here]
- some information is available about those proprietary codes.
+The gateway is not `IPSO` compliant though as some compulsory attributes are missing. The range of `9xxx` codes are proprietary. Some description of those codes can be found
+https://github.com/eclipse/smarthome/blob/master/extensions/binding/org.eclipse.smarthome.binding.tradfri/src/main/java/org/eclipse/smarthome/binding/tradfri/TradfriBindingConstants.java[here].
 
 * Next you can use CoAP's `PUT` method with JSON payload to turn a light On or Off.
 
@@ -265,5 +265,5 @@ to debug only californium and scandium. Later is useful to debug the CoAP reques
 For example:
 [source,bash]
 ----
-java -jar ./target/coap-shell-1.0.5-SNAPSHOT.jar --logging.level.org.eclipse.californium=DEBUG
+java -jar ./target/coap-shell-1.0.6-SNAPSHOT.jar --logging.level.org.eclipse.californium=DEBUG
 ----

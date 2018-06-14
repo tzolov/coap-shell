@@ -394,7 +394,7 @@ public class CoapShellCommands implements ApplicationEventPublisherAware {
 		StringBuffer result = new StringBuffer();
 		final String baseUri = this.coapClient.getURI();
 		try {
-			this.coapClient.setURI(this.coapClient.getURI() + path);
+			this.coapClient.setURI(baseUri + path);
 			result.append(requestInfo("OBSERVE Start", baseUri + path, false));
 			this.connectionStatus.setObservedUri(baseUri + path);
 
@@ -402,9 +402,9 @@ public class CoapShellCommands implements ApplicationEventPublisherAware {
 				@Override
 				public void onLoad(CoapResponse response) {
 					observerResponses
-							.append(cyan("OBSERVE Response (" + connectionStatus.getObservedUri() + "):"))
-							.append(StringUtil.lineSeparator())
-							.append(cyan(PrintUtils.prettyPrint(response, ""))).append(StringUtil.lineSeparator());
+							.append(cyan(PrintUtils.prettyPrint(response,
+									cyan("OBSERVE Response (" + connectionStatus.getObservedUri() + "):"))))
+							.append(StringUtil.lineSeparator());
 				}
 
 				@Override
@@ -415,7 +415,7 @@ public class CoapShellCommands implements ApplicationEventPublisherAware {
 			};
 
 			this.observeRelation = this.coapClient.observe(handler, coapContentType(accept));
-			this.eventPublisher.publishEvent(this.connectionStatus.setObservedUri(null));
+			this.eventPublisher.publishEvent(this.connectionStatus);
 		}
 		finally {
 			this.coapClient.setURI(baseUri);
