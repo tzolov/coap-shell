@@ -67,7 +67,7 @@ public class CoapDtlsSupport {
 							keyStore.getCertificateChain(this.properties.getKeyStoreAlias()), true)
 					.setTrustStore(trustedCertificates)
 					.setMaxConnections(100)
-					.setStaleConnectionThreshold(60);
+					.setStaleConnectionThreshold(properties.getStaleConnectionThreshold());
 
 			if (StringUtils.hasText(identity) && StringUtils.hasText(preSharedKey)) {
 				builder.setPskStore(new StaticPskStore(identity, preSharedKey.getBytes()));

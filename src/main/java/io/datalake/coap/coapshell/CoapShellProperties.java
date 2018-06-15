@@ -16,6 +16,7 @@
 package io.datalake.coap.coapshell;
 
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.PositiveOrZero;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -30,6 +31,8 @@ public class CoapShellProperties {
 	private String keyStoreLocation;
 	private String keyStorePassword;
 	private String keyStoreAlias;
+
+	private int staleConnectionThreshold = 24 * 60 * 60; // 24 hours (sec)
 
 	@NotEmpty
 	public String getTrustStoreLocation() {
@@ -74,6 +77,15 @@ public class CoapShellProperties {
 
 	public void setKeyStoreAlias(String keyStoreAlias) {
 		this.keyStoreAlias = keyStoreAlias;
+	}
+
+	@PositiveOrZero
+	public int getStaleConnectionThreshold() {
+		return staleConnectionThreshold;
+	}
+
+	public void setStaleConnectionThreshold(int staleConnectionThreshold) {
+		this.staleConnectionThreshold = staleConnectionThreshold;
 	}
 
 	@Override
