@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.xml.bind.SchemaOutputResolver;
+
 import io.datalake.coap.coapshell.CoapConnectionStatus;
 import io.datalake.coap.coapshell.provider.ContentTypeValueProvider;
 import io.datalake.coap.coapshell.provider.DiscoveryQueryValueProvider;
@@ -144,9 +146,22 @@ public class CoapShellCommands implements ApplicationEventPublisherAware {
 			this.eventPublisher.publishEvent(this.connectionStatus);
 		}
 
-		boolean available = this.pingInternal("/");
-		if (available && !disableDiscover) {
-			this.discover("");
+		//boolean available = this.pingInternal("/");
+		//if (available && !disableDiscover) {
+		//	this.discover("");
+		//}
+
+		boolean available = false;
+		try {
+			if (!disableDiscover) {
+				Table d = this.discover("");
+				if (d != null) {
+					available = true;
+				}
+			}
+		}
+		catch (Throwable throwable) {
+			System.out.println("Initial Discover Filed!");
 		}
 
 		return available ? green("available") : red("unavailable");
