@@ -64,7 +64,7 @@ public class CoapDtlsSupport {
 			DtlsConnectorConfig.Builder builder = new DtlsConnectorConfig.Builder()
 					.setAddress(new InetSocketAddress(0))
 					.setIdentity((PrivateKey) keyStore.getKey(this.properties.getKeyStoreAlias(), this.properties.getKeyStorePassword().toCharArray()),
-							keyStore.getCertificateChain(this.properties.getKeyStoreAlias()), true)
+							keyStore.getCertificate(this.properties.getKeyStoreAlias()).getPublicKey())
 					.setTrustStore(trustedCertificates)
 					.setMaxConnections(100)
 					.setStaleConnectionThreshold(properties.getStaleConnectionThreshold());

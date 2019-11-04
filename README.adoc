@@ -37,7 +37,7 @@ https://youtu.be/zhEGFfCJwTg[image:https://raw.githubusercontent.com/tzolov/coap
 * Then start the shell:
 [source,bash]
 ----
-java -jar ./coap-shell-1.0.7.jar
+java -jar ./coap-shell-1.1.0.jar
 ----
 
 [source,bash]
@@ -46,24 +46,24 @@ java -jar ./coap-shell-1.0.7.jar
  / ___/__  / _ | / _ \   / __/ /  ___ / / /
 / /__/ _ \/ __ |/ ___/  _\ \/ _ \/ -_) / /
 \___/\___/_/ |_/_/     /___/_//_/\__/_/_/
-CoAP Shell (v1.0.7)
+CoAP Shell (v1.1.0)
 For assistance hit TAB or type "help".
 
 server-unknown:>
 ----
 
-* Connect to a CoAP server (such as `coaps://californium.eclipse.org:5684` or `coap://coap.me`)
+* Connect to a CoAP server (such as `coap://californium.eclipse.org/` or `coap://coap.me`)
 [source,bash]
 ----
-server-unknown:>connect coaps://californium.eclipse.org:5684
+server-unknown:>connect coap://californium.eclipse.org
 available
-coaps://californium.eclipse.org:5684:>
+coap://californium.eclipse.org/:>
 ----
 
 * Discover the available CoAP resources:
 [source,bash]
 ----
-coaps://californium.eclipse.org:5684:>discover --query href=/*
+coap://californium.eclipse.org/:>discover --query href=/*
 
 ┌─────────────────┬──────────────────┬────────────────────────────────────┬──────────────┬─────────┬────────────────┐
 │Path [href]      │Resource Type [rt]│Content Type [ct]                   │Interface [if]│Size [sz]│Observable [obs]│
@@ -79,10 +79,10 @@ coaps://californium.eclipse.org:5684:>discover --query href=/*
 * Get resource data
 [source,bash]
 ----
-coaps://californium.eclipse.org:5684:>get /multi-format --accept application/xml
+coap://californium.eclipse.org/:>get /multi-format --accept application/xml
 
 ----------------------------------- Response -----------------------------------
-GET coaps://californium.eclipse.org:5684/multi-format
+GET coap://californium.eclipse.org/multi-format
 MID: 31291, Type: ACK, Token: [0a10eaafaf3d024f], RTT: 123ms
 Options: {"Content-Format":"application/xml"}
 Status : 205-Reset Content, Payload: 63B
@@ -217,10 +217,10 @@ Status : 205-Reset Content, Payload: 220B
 --------------------------------------------------------------------------------
 ----
 
-NOTE: The CoAP Gateway follows (*partially!*) some of the https://github.com/IPSO-Alliance/pub/tree/master/reg[IPSO] Smart Object specs.
-For example the https://github.com/IPSO-Alliance/pub/blob/master/reg/xml/3311.xml["3311"] block corresponds to the `Light Control` object and the `5850` is an mandatory `On/Off` attribute within this object.
-Similarly the https://github.com/IPSO-Alliance/pub/blob/master/reg/xml/3.xml["3"] section corresponds to the `Device` manufacturer object spec.
-The gateway is not `IPSO` compliant though as some compulsory attributes are missing. The range of `9xxx` codes are proprietary. Some description of those codes can be found
+NOTE: The CoAP Gateway follows (*partially!*) some of the https://github.com/OpenMobileAlliance/lwm2m-registry[OpenMobileAlliance] (formerly IPSO) Smart Object specs.
+For example https://github.com/OpenMobileAlliance/lwm2m-registry/blob/test/3311.xml["3311"] block corresponds to the `Light Control` object and the `5850` is an mandatory `On/Off` attribute within this object.
+Similarly the https://github.com/OpenMobileAlliance/lwm2m-registry/blob/test/LWM2M_Device-v1_1.xml[LWM2M_Device] section provides a `Device` manufacturer object spec.
+The gateway is not `OpenMobileAlliance/IPSO` compliant though as some compulsory attributes are missing. The range of `9xxx` codes are proprietary. Some description of those codes can be found
 https://github.com/eclipse/smarthome/blob/master/extensions/binding/org.eclipse.smarthome.binding.tradfri/src/main/java/org/eclipse/smarthome/binding/tradfri/TradfriBindingConstants.java[here].
 
 * Next you can use CoAP's `PUT` method with JSON payload to turn a light On or Off.
@@ -265,5 +265,5 @@ to debug only californium and scandium. Later is useful to debug the CoAP reques
 For example:
 [source,bash]
 ----
-java -jar ./target/coap-shell-1.0.8-SNAPSHOT.jar --logging.level.org.eclipse.californium=DEBUG
+java -jar ./target/coap-shell-1.1.0-SNAPSHOT.jar --logging.level.org.eclipse.californium=DEBUG
 ----

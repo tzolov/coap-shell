@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -22,6 +23,7 @@ import io.datalake.coap.coapshell.util.Row;
 import org.eclipse.californium.core.CoapClient;
 import org.eclipse.californium.core.WebLink;
 import org.eclipse.californium.core.coap.MediaTypeRegistry;
+import org.eclipse.californium.elements.exception.ConnectorException;
 
 import org.springframework.beans.BeanWrapperImpl;
 
@@ -30,7 +32,7 @@ import org.springframework.beans.BeanWrapperImpl;
  */
 public class Main {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws ConnectorException, IOException {
 
 		CoapClient client = new CoapClient("coap://californium.eclipse.org:5683");
 		//client.setURI(client.getURI() + "/test");

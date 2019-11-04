@@ -26,8 +26,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.xml.bind.SchemaOutputResolver;
-
 import io.datalake.coap.coapshell.CoapConnectionStatus;
 import io.datalake.coap.coapshell.provider.ContentTypeValueProvider;
 import io.datalake.coap.coapshell.provider.DiscoveryQueryValueProvider;
@@ -44,6 +42,7 @@ import org.eclipse.californium.core.WebLink;
 import org.eclipse.californium.core.coap.MediaTypeRegistry;
 import org.eclipse.californium.core.network.CoapEndpoint;
 import org.eclipse.californium.core.network.config.NetworkConfig;
+import org.eclipse.californium.elements.exception.ConnectorException;
 import org.eclipse.californium.elements.util.StringUtil;
 import org.eclipse.californium.scandium.DTLSConnector;
 import org.jline.terminal.Terminal;
@@ -129,7 +128,7 @@ public class CoapShellCommands implements ApplicationEventPublisherAware {
 				|| StringUtils.hasText(secret) || StringUtils.hasText(identity)) {
 			DTLSConnector dtlsConnector = dtsl.createConnector(identity, secret);
 
-			CoapEndpoint coapEndpoint = new CoapEndpoint.CoapEndpointBuilder()
+			CoapEndpoint coapEndpoint = new CoapEndpoint.Builder()
 					.setNetworkConfig(NetworkConfig.getStandard()
 							.set(NetworkConfig.Keys.TCP_CONNECTION_IDLE_TIMEOUT, DEFAULT_TCP_CONNECTION_IDLE_TIMEOUT)
 							.set(NetworkConfig.Keys.DTLS_AUTO_RESUME_TIMEOUT, 1000 * 60 * 30))
@@ -208,7 +207,7 @@ public class CoapShellCommands implements ApplicationEventPublisherAware {
 	@ShellMethodAvailability("availabilityCheck")
 	public Table discover(
 			@ShellOption(defaultValue = ShellOption.NULL, help = "discover query (e.g 'href=*', 'ct=40', 'obs' and ect. )",
-					valueProvider = DiscoveryQueryValueProvider.class) String query) {
+					valueProvider = DiscoveryQueryValueProvider.class) String query) throws ConnectorException, IOException {
 
 		LinkedHashMap<String, Object> headers = new LinkedHashMap<>();
 		headers.put("column[0]", "Path [href]");
@@ -218,7 +217,9 @@ public class CoapShellCommands implements ApplicationEventPublisherAware {
 		headers.put("column[4]", "Size [sz]");
 		headers.put("column[5]", "Observable [obs]");
 
-		Set<WebLink> resources = this.coapClient.discover(query);
+		Set<WebLink> resources = null;
+
+		resources = this.coapClient.discover(query);
 
 		if (resources == null) {// empty response
 			resources = new HashSet<>();
@@ -280,7 +281,7 @@ public class CoapShellCommands implements ApplicationEventPublisherAware {
 	public String get(
 			@ShellOption(help = "Resource URI path", valueProvider = UriPathValueProvider.class) String path,
 			@ShellOption(defaultValue = "false", help = "If set an asynchronous Get will be performed") boolean async,
-			@ShellOption(defaultValue = COAP_TEXT_PLAIN, help = "accepted response content-type", valueProvider = ContentTypeValueProvider.class) String accept) {
+			@ShellOption(defaultValue = COAP_TEXT_PLAIN, help = "accepted response content-type", valueProvider = ContentTypeValueProvider.class) String accept) throws ConnectorException, IOException {
 
 		StringBuffer result = new StringBuffer();
 		final String baseUri = this.coapClient.getURI();
@@ -310,7 +311,7 @@ public class CoapShellCommands implements ApplicationEventPublisherAware {
 			@ShellOption(defaultValue = ShellOption.NULL, help = "message payload file") File payloadFile,
 			@ShellOption(defaultValue = COAP_TEXT_PLAIN, help = "payload content-type", valueProvider = ContentTypeValueProvider.class) String format,
 			@ShellOption(defaultValue = COAP_TEXT_PLAIN, help = "accepted response content-type", valueProvider = ContentTypeValueProvider.class) String accept,
-			@ShellOption(defaultValue = "false", help = "If set an asynchronous Post will be performed") boolean async) throws IOException {
+			@ShellOption(defaultValue = "false", help = "If set an asynchronous Post will be performed") boolean async) throws IOException, ConnectorException {
 
 		Assert.isTrue(payloadFile == null || payloadFile.exists(),
 				"Payload file [" + payloadFile + "] doesn't exists!");
@@ -347,7 +348,7 @@ public class CoapShellCommands implements ApplicationEventPublisherAware {
 			@ShellOption(defaultValue = ShellOption.NULL, help = "PUT message payload") String payload,
 			@ShellOption(defaultValue = ShellOption.NULL, help = "message payload file") File payloadFile,
 			@ShellOption(defaultValue = COAP_TEXT_PLAIN, help = "payload content-type", valueProvider = ContentTypeValueProvider.class) String format,
-			@ShellOption(defaultValue = "false", help = "If set an asynchronous PUT will be performed") boolean async) throws IOException {
+			@ShellOption(defaultValue = "false", help = "If set an asynchronous PUT will be performed") boolean async) throws IOException, ConnectorException {
 
 		Assert.isTrue(payloadFile == null || payloadFile.exists(),
 				"Payload file [" + payloadFile + "] doesn't exists!");
@@ -380,7 +381,7 @@ public class CoapShellCommands implements ApplicationEventPublisherAware {
 	@ShellMethodAvailability("availabilityCheck")
 	public String delete(@ShellOption(help = "Resource URI path to delete",
 			valueProvider = UriPathValueProvider.class) String path,
-			@ShellOption(defaultValue = "false", help = "Perform the delete asynchronously") boolean async) {
+			@ShellOption(defaultValue = "false", help = "Perform the delete asynchronously") boolean async) throws ConnectorException, IOException {
 
 		StringBuffer result = new StringBuffer();
 		final String baseUri = this.coapClient.getURI();

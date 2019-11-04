@@ -36,10 +36,12 @@ import org.eclipse.californium.core.coap.CoAP;
 import org.eclipse.californium.core.coap.MediaTypeRegistry;
 import org.eclipse.californium.core.network.CoapEndpoint;
 import org.eclipse.californium.core.network.config.NetworkConfig;
+import org.eclipse.californium.elements.exception.ConnectorException;
 import org.eclipse.californium.scandium.DTLSConnector;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.NestedExceptionUtils;
 import org.springframework.shell.Availability;
 import org.springframework.shell.standard.ShellCommandGroup;
 import org.springframework.shell.standard.ShellComponent;
@@ -77,9 +79,24 @@ public class IkeaCoapShellCommands {
 	@Autowired
 	private IkeaDeviceInstanceValueProvider instanceValueProvider;
 
+	private CoapClient coapClient = new CoapClient();
+
 	@EventListener
 	public void handle(CoapConnectionStatus connectionStatus) {
 		this.connectionStatus = connectionStatus;
+
+		if (this.coapClient.getEndpoint() != null) {
+			this.coapClient.getEndpoint().destroy(); // also destroys the connector
+		}
+
+		DTLSConnector dtlsConnector = dtsl.createConnector(
+				this.connectionStatus.getIdentity(), this.connectionStatus.getSecret());
+
+		CoapEndpoint coapEndpoint = new CoapEndpoint.Builder()
+				.setNetworkConfig(NetworkConfig.getStandard())
+				.setConnector(dtlsConnector).build();
+
+		this.coapClient.setEndpoint(coapEndpoint);
 	}
 
 
@@ -91,66 +108,76 @@ public class IkeaCoapShellCommands {
 
 		DTLSConnector dtlsConnector = dtsl.createConnector(IKEA_GATEWAY_CLIENT_IDENTITY, gatewayCode);
 
-		CoapEndpoint coapEndpoint = new CoapEndpoint.CoapEndpointBuilder()
+		CoapEndpoint coapEndpoint = new CoapEndpoint.Builder()
 				.setNetworkConfig(NetworkConfig.getStandard())
 				.setConnector(dtlsConnector).build();
 		CoapClient pskCoapClient = new CoapClient(String.format(IKEA_GATEWAY_KEY_URL_TEMPLATE, gatewayIp.trim()))
 				.setTimeout(TimeUnit.SECONDS.toMillis(10))
 				.setEndpoint(coapEndpoint);
 
-		CoapResponse gatewayResponse = pskCoapClient.post(String.format("{\"9090\":\"%s\"}", newIdentity), 0);
-
-		dtlsConnector.destroy();
-		pskCoapClient.shutdown();
-
 		StringBuilder commandResponse = new StringBuilder();
+		CoapResponse gatewayResponse = null;
+		try {
+			gatewayResponse = pskCoapClient.post(String.format("{\"9090\":\"%s\"}", newIdentity), 0);
 
-		commandResponse.append(normal(PrintUtils.prettyPrint(gatewayResponse, ""))).append("\n");
+			dtlsConnector.destroy();
+			pskCoapClient.shutdown();
+			commandResponse.append(normal(PrintUtils.prettyPrint(gatewayResponse, ""))).append("\n");
 
-		if (gatewayResponse != null && gatewayResponse.isSuccess()) {
-			try {
-				Map<String, String> jsonMap = new ObjectMapper().readValue(gatewayResponse.getResponseText(), Map.class);
-				String preSharedKey = jsonMap.get("9091");
-				commandResponse.append(
-						cyan(String.format("IDENTITY: %s , PRE_SHARED_KEY: %s", newIdentity, preSharedKey)));
-				return commandResponse.toString();
+			if (gatewayResponse != null && gatewayResponse.isSuccess()) {
+				try {
+					Map<String, String> jsonMap = new ObjectMapper().readValue(gatewayResponse.getResponseText(), Map.class);
+					String preSharedKey = jsonMap.get("9091");
+					commandResponse.append(
+							cyan(String.format("IDENTITY: %s , PRE_SHARED_KEY: %s", newIdentity, preSharedKey)));
+					return commandResponse.toString();
+				}
+				catch (IOException e) {
+					commandResponse.append(red("Invalid or incomplete JSON response!")).append("\n");
+				}
 			}
-			catch (IOException e) {
-				commandResponse.append(red("Invalid or incomplete JSON response!")).append("\n");
+
+			if (gatewayResponse != null && gatewayResponse.getCode() == CoAP.ResponseCode.BAD_REQUEST) {
+				commandResponse.append(red("This error could indicate that you need to " +
+						"choose a new identity name, different from: " + newIdentity)).append("\n");
 			}
-		}
 
-		if (gatewayResponse != null && gatewayResponse.getCode() == CoAP.ResponseCode.BAD_REQUEST) {
-			commandResponse.append(red("This error could indicate that you need to " +
-					"choose a new identity name, different from: " + newIdentity)).append("\n");
+			commandResponse.append(red("Failed to obtain Gateway pre shared key!")).append("\n");
 		}
-
-		commandResponse.append(red("Failed to obtain Gateway pre shared key!")).append("\n");
+		catch (Exception e) {
+			commandResponse.append(
+					red(NestedExceptionUtils.buildMessage("Failed to obtain Gateway pre shared key!", e)))
+					.append("\n");
+		}
 
 		return commandResponse.toString();
 	}
 
-	@ShellMethod(key = "ikea turn on", value = "switch light ON")
+	@ShellMethod(key = "ikea turn on", value = "switch light/outlet ON")
 	@ShellMethodAvailability("ikeaAvailabilityCheck")
 	public String turnLightOn(
-			@ShellOption(help = "device id", valueProvider = IkeaDeviceInstanceValueProvider.class) int instance) throws IOException {
+			@ShellOption(help = "device id", valueProvider = IkeaDeviceInstanceValueProvider.class) int instance) throws IOException, ConnectorException {
 		return this.turnLight(instance, true);
 	}
 
-	@ShellMethod(key = "ikea turn off", value = "switch light OFF")
+	@ShellMethod(key = "ikea turn off", value = "switch light/outlet OFF")
 	@ShellMethodAvailability("ikeaAvailabilityCheck")
 	public String turnLightOff(
-			@ShellOption(help = "device id", valueProvider = IkeaDeviceInstanceValueProvider.class) int instance) throws IOException {
+			@ShellOption(help = "device id", valueProvider = IkeaDeviceInstanceValueProvider.class) int instance) throws IOException, ConnectorException {
 		return this.turnLight(instance, false);
 	}
 
-	private String turnLight(int instance, boolean on) throws IOException {
+	private String turnLight(int instance, boolean on) throws IOException, ConnectorException {
 		ObjectMapper mapper = new ObjectMapper();
 		String deviceJson = getJson("/15001/" + instance);
 		Map<String, Object> deviceMap = mapper.readValue(deviceJson, Map.class);
 		String type = deviceTypeName((Integer) deviceMap.get("5750"));
 		if (type.equalsIgnoreCase("LIGHT")) {
 			String payload = String.format("{\"3311\":[{\"5850\":%s}]}", (on) ? 1 : 0);
+			return putJson("/15001/" + instance, payload);
+		}
+		else if (type.equalsIgnoreCase("SMART_PLUG")) {
+			String payload = String.format("{\"3312\":[{\"5850\":%s}]}", (on) ? 1 : 0);
 			return putJson("/15001/" + instance, payload);
 		}
 		return "";
@@ -160,7 +187,7 @@ public class IkeaCoapShellCommands {
 	@ShellMethodAvailability("ikeaAvailabilityCheck")
 	public String deviceName(
 			@ShellOption(help = "device id", valueProvider = IkeaDeviceInstanceValueProvider.class) int instance,
-			@ShellOption(defaultValue = ShellOption.NULL, help = "New device name") String newName) throws IOException {
+			@ShellOption(defaultValue = ShellOption.NULL, help = "New device name") String newName) throws IOException, ConnectorException {
 		StringBuffer sb = new StringBuffer();
 		ObjectMapper mapper = new ObjectMapper();
 		String deviceJson = getJson("/15001/" + instance);
@@ -179,7 +206,7 @@ public class IkeaCoapShellCommands {
 
 	@ShellMethod(key = "ikea device list", value = "List all devices registered to the IKEA TRÅDFRI Gateway")
 	@ShellMethodAvailability("ikeaAvailabilityCheck")
-	public Table listIkeaDevices() throws IOException {
+	public Table listIkeaDevices() throws IOException, ConnectorException {
 		ObjectMapper mapper = new ObjectMapper();
 		String json = getJson("/15001");
 		Integer[] deviceIds = mapper.readValue(json, Integer[].class);
@@ -196,7 +223,7 @@ public class IkeaCoapShellCommands {
 			row.getColumn().add(((Map<String, String>) deviceMap.get("3")).get("1")); //model
 			row.getColumn().add(((Map<String, String>) deviceMap.get("3")).get("3")); // firmware
 			row.getColumn().add(normalize(((Map<String, Object>) deviceMap.get("3")).get("9"))); // battery
-			row.getColumn().add(onOffStatus(deviceMap.get("3311"))); // ON/OFF
+			row.getColumn().add(onOffStatus((deviceMap.containsKey("3311")) ? deviceMap.get("3311") : deviceMap.get("3312"))); // ON/OFF
 //			row.getColumn().add(String.valueOf(new Date((Integer) deviceMap.get("9002")))); //created at
 			list.add(row);
 		}
@@ -235,6 +262,8 @@ public class IkeaCoapShellCommands {
 			return "SWITCH";
 		case 2:
 			return "LIGHT";
+		case 3:
+			return "SMART_PLUG";
 		case 4:
 			return "SENSOR";
 		}
@@ -245,34 +274,15 @@ public class IkeaCoapShellCommands {
 		return (o == null) ? "-" : "" + o;
 	}
 
-	private String getJson(String path) {
-		CoapClient coapClient = new CoapClient(this.connectionStatus.getBaseUri() + path);
-		DTLSConnector dtlsConnector = dtsl.createConnector(this.connectionStatus.getIdentity(), this.connectionStatus.getSecret());
-
-		CoapEndpoint coapEndpoint = new CoapEndpoint.CoapEndpointBuilder()
-				.setNetworkConfig(NetworkConfig.getStandard())
-				.setConnector(dtlsConnector).build();
-		coapClient.setEndpoint(coapEndpoint);
-
-		String json = coapClient.get().getResponseText();
-		dtlsConnector.destroy();
-		coapClient.shutdown();
+	private String getJson(String path) throws ConnectorException, IOException {
+		this.coapClient.setURI(this.connectionStatus.getBaseUri() + path);
+		String json = this.coapClient.get().getResponseText();
 		return json;
 	}
 
-	private String putJson(String path, String payload) {
-		CoapClient coapClient = new CoapClient(this.connectionStatus.getBaseUri() + path);
-		DTLSConnector dtlsConnector = dtsl.createConnector(this.connectionStatus.getIdentity(), this.connectionStatus.getSecret());
-
-		CoapEndpoint coapEndpoint = new CoapEndpoint.CoapEndpointBuilder()
-				.setNetworkConfig(NetworkConfig.getStandard())
-				.setConnector(dtlsConnector).build();
-		coapClient.setEndpoint(coapEndpoint);
-
+	private String putJson(String path, String payload) throws ConnectorException, IOException {
+		this.coapClient.setURI(this.connectionStatus.getBaseUri() + path);
 		CoapResponse response = coapClient.put(payload, MediaTypeRegistry.APPLICATION_JSON);
-		dtlsConnector.destroy();
-		coapClient.shutdown();
-
 		return response.isSuccess() ? "OK" : "FAILED";
 	}
 
