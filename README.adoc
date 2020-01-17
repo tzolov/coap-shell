@@ -52,6 +52,8 @@ For assistance hit TAB or type "help".
 server-unknown:>
 ----
 
+CAUTION: If you see an exception like: `Caused by: java.lang.NumberFormatException: For input string:` then you have to remove the existing `spring-shell.log` file in the same directory.
+
 * Connect to a CoAP server (such as `coap://californium.eclipse.org/` or `coap://coap.me`)
 [source,bash]
 ----
