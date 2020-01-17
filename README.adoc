@@ -33,11 +33,11 @@ https://youtu.be/zhEGFfCJwTg[image:https://raw.githubusercontent.com/tzolov/coap
 
 === Quick Start
 
-* Get a pre-build https://bintray.com/big-data/maven/download_file?file_path=io%2Fdatalake%2Fcoap%2Fcoap-shell%2F1.1.0%2Fcoap-shell-1.1.0.jar[coap-shell.jar] or build one yourself following the instructions further down.
+* Get a pre-build https://bintray.com/big-data/maven/download_file?file_path=io%2Fdatalake%2Fcoap%2Fcoap-shell%2F1.1.1%2Fcoap-shell-1.1.1.jar[coap-shell.jar] or build one yourself following the instructions further down.
 * Then start the shell:
 [source,bash]
 ----
-java -jar ./coap-shell-1.1.0.jar
+java -jar ./coap-shell-1.1.1.jar
 ----
 
 [source,bash]
@@ -46,7 +46,7 @@ java -jar ./coap-shell-1.1.0.jar
  / ___/__  / _ | / _ \   / __/ /  ___ / / /
 / /__/ _ \/ __ |/ ___/  _\ \/ _ \/ -_) / /
 \___/\___/_/ |_/_/     /___/_//_/\__/_/_/
-CoAP Shell (v1.1.0)
+CoAP Shell (v1.1.1)
 For assistance hit TAB or type "help".
 
 server-unknown:>
@@ -265,5 +265,5 @@ to debug only californium and scandium. Later is useful to debug the CoAP reques
 For example:
 [source,bash]
 ----
-java -jar ./target/coap-shell-1.1.0-SNAPSHOT.jar --logging.level.org.eclipse.californium=DEBUG
+java -jar ./target/coap-shell-1.1.1-SNAPSHOT.jar --logging.level.org.eclipse.californium=DEBUG
 ----
