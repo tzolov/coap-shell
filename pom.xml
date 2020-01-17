@@ -4,7 +4,7 @@
 
 	<groupId>io.datalake.coap</groupId>
 	<artifactId>coap-shell</artifactId>
-	<version>1.1.1-SNAPSHOT</version>
+	<version>1.1.1</version>
 	<packaging>jar</packaging>
 
 	<name>CoAP Shell</name>
@@ -36,7 +36,7 @@
 		<connection>scm:git:https://github.com/tzolov/coap-shell</connection>
 		<developerConnection>scm:git:git@github.com:tzolov/coap-shell.git</developerConnection>
 		<url>https://github.com/tzolov/coap-shell</url>
-		<tag>HEAD</tag>
+		<tag>coap-shell-1.1.1</tag>
 	</scm>
 
 	<distributionManagement>
