@@ -54,18 +54,18 @@ server-unknown:>
 
 CAUTION: If you see an exception like: `Caused by: java.lang.NumberFormatException: For input string:` then you have to remove the existing `spring-shell.log` file in the same directory.
 
-* Connect to a CoAP server (such as `coap://californium.eclipse.org/` or `coap://coap.me`)
+* Connect to a CoAP server (such as `coap://californium.eclipseprojects.io:5683/` or `coap://coap.me`)
 [source,bash]
 ----
-server-unknown:>connect coap://californium.eclipse.org
+server-unknown:>connect coap://californium.eclipseprojects.io:5683/
 available
-coap://californium.eclipse.org/:>
+coap://californium.eclipseprojects.io:5683/:>
 ----
 
 * Discover the available CoAP resources:
 [source,bash]
 ----
-coap://californium.eclipse.org/:>discover --query href=/*
+coap://californium.eclipseprojects.io:5683/:>discover --query href=/*
 
 ┌─────────────────┬──────────────────┬────────────────────────────────────┬──────────────┬─────────┬────────────────┐
 │Path [href]      │Resource Type [rt]│Content Type [ct]                   │Interface [if]│Size [sz]│Observable [obs]│
@@ -81,7 +81,7 @@ coap://californium.eclipse.org/:>discover --query href=/*
 * Get resource data
 [source,bash]
 ----
-coap://californium.eclipse.org/:>get /multi-format --accept application/xml
+coap://californium.eclipseprojects.io:5683/:>get /multi-format --accept application/xml
 
 ----------------------------------- Response -----------------------------------
 GET coap://californium.eclipse.org/multi-format
@@ -97,8 +97,8 @@ Status : 205-Reset Content, Payload: 63B
 * Use `help` to the available commands and how are they used.
 * Use `TAB` for command and argument auto-completion.
 
-CAUTION: If you see `org.eclipse.californium.elements.EndpointMismatchException` error message that means that your DTLS session has expired
-and you have to re-connect again.
+CAUTION: If you see `org.eclipse.californium.elements.EndpointMismatchException` error message then your DTLS session
+has expired. You will have to re-connect again.
 
 === IKEA TRÅDFRI Gateway Support
 
@@ -107,7 +107,7 @@ Use the `ikea gateway key` to register a new account (e.g. identity + secret) to
 
 [source,bash]
 ----
-server-unknown:>ikea gateway key --ip 192.168.178.151 --identity myIkeaGatewayIdentity --security-code <Gateway Code Label>
+server-unknown:>ikea gateway key --ip 192.168.178.150 --identity myIkeaGatewayIdentity --security-code <Gateway Code Label>
 
 -------------------------------- CoAP Response ---------------------------------
  MID    : 58318
@@ -123,7 +123,8 @@ server-unknown:>ikea gateway key --ip 192.168.178.151 --identity myIkeaGatewayId
 IDENTITY: myIkeaGatewayIdentity , PRE_SHARED_KEY: X5xyYM41qFS7vN10
 ----
 
-The `192.168.178.151` is the IP address of the gateway in your network. You should find the IP of your IKEA gateway box and use it instead!
+You can find the `security-code` value at the back of your Gateway box.
+The `192.168.178.150` is the IP address of the gateway in your network. You should find the IP of your IKEA gateway box and use it instead!
 The `myIkeaGatewayIdentity` is the new identity to be registered with the gateway. the `<Gateway Code Label>` is printed on the back side of the Gateway box.
 
 The response `IDENTITY: myIkeaGatewayIdentity , PRE_SHARED_KEY: X5xyYM41qFS7vNa9` contains the new credential created for you.
@@ -133,9 +134,9 @@ Store the generated identity and secret so you can use them to interact with you
 
 [source,bash]
 ----
-server-unknown:>connect coaps://192.168.178.151:5684 --identity myIkeaGatewayIdentity --secret X5xyYM41qFS7vN10
+server-unknown:>connect coaps://192.168.178.150:5684 --identity myIkeaGatewayIdentity --secret X5xyYM41qFS7vN10
 available
-coaps://192.168.178.151:5684:>
+coaps://192.168.178.150:5684:>
 ----
 (Again substitute with the IP of your gateway. Use the identity and secret created in the previous step)
 
@@ -143,7 +144,7 @@ coaps://192.168.178.151:5684:>
 
 [source,bash]
 ----
-coaps://192.168.178.151:5684:>ikea device list
+coaps://192.168.178.150:5684:>ikea device list
 
 ┌────────┬─────────┬──────┬───────────────────────────────┬────────┬───────────┬──────┐
 │Instance│Name     │Type  │Model                          │Firmware│Battery [%]│ON/OFF│
@@ -162,20 +163,20 @@ coaps://192.168.178.151:5684:>ikea device list
 
 [source,bash]
 ----
-coaps://192.168.178.151:5684:>ikea turn on --instance 65539
+coaps://192.168.178.150:5684:>ikea turn on --instance 65539
 OK
 
-coaps://192.168.178.151:5684:>ikea device list
+coaps://192.168.178.150:5684:>ikea device list
 ┌────────┬─────────┬──────┬───────────────────────────────┬────────┬───────────┬──────┐
 │Instance│Name     │Type  │Model                          │Firmware│Battery [%]│ON/OFF│
 ├────────┼─────────┼──────┼───────────────────────────────┼────────┼───────────┼──────┤
 │65539   │GU10 WC  │LIGHT │TRADFRI bulb GU10 W 400lm      │1.2.214 │-          │ON    │
 
 
-coaps://192.168.178.151:5684:>ikea turn off --instance 65539
+coaps://192.168.178.150:5684:>ikea turn off --instance 65539
 OK
 
-coaps://192.168.178.151:5684:>ikea device list
+coaps://192.168.178.150:5684:>ikea device list
 ┌────────┬─────────┬──────┬───────────────────────────────┬────────┬───────────┬──────┐
 │Instance│Name     │Type  │Model                          │Firmware│Battery [%]│ON/OFF│
 ├────────┼─────────┼──────┼───────────────────────────────┼────────┼───────────┼──────┤
@@ -187,10 +188,10 @@ coaps://192.168.178.151:5684:>ikea device list
 
 [source,bash]
 ----
-coaps://192.168.178.151:5684:>get //15001/65539
+coaps://192.168.178.150:5684:>get //15001/65539
 
 ----------------------------------- Response -----------------------------------
-GET coaps://192.168.178.151:5684//15001/65539
+GET coaps://192.168.178.150:5684//15001/65539
 MID: 30881, Type: ACK, Token: [260128b68be34371], RTT: 5ms
 Options: {"Content-Format":"application/json", "Max-Age":604800}
 Status : 205-Reset Content, Payload: 220B
@@ -231,14 +232,14 @@ Set `5850` to `1` for turning the lamp ON:
 
 [source,bash]
 ----
-coaps://192.168.178.151:5684:>put //15001/65539 --payload '{"3311":[{"5850":1}]}'
+coaps://192.168.178.150:5684:>put //15001/65539 --payload '{"3311":[{"5850":1}]}'
 ----
 
 or `0` for turning it OFF:
 
 [source,bash]
 ----
-coaps://192.168.178.151:5684:>put //15001/65539 --payload '{"3311":[{"5850":0}]}'
+coaps://192.168.178.150:5684:>put //15001/65539 --payload '{"3311":[{"5850":0}]}'
 ----
 
 Use the `//15001/<DEVICE ID>` template to address the device you want.

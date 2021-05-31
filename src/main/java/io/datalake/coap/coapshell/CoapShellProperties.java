@@ -28,6 +28,7 @@ public class CoapShellProperties {
 
 	private String trustStoreLocation;
 	private String trustStorePassword;
+	private String trustStoreAlias;
 	private String keyStoreLocation;
 	private String keyStorePassword;
 	private String keyStoreAlias;
@@ -50,6 +51,15 @@ public class CoapShellProperties {
 
 	public void setTrustStorePassword(String trustStorePassword) {
 		this.trustStorePassword = trustStorePassword;
+	}
+
+	@NotEmpty
+	public String getTrustStoreAlias() {
+		return trustStoreAlias;
+	}
+
+	public void setTrustStoreAlias(String trustStoreAlias) {
+		this.trustStoreAlias = trustStoreAlias;
 	}
 
 	@NotEmpty

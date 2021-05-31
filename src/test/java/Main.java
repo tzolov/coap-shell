@@ -34,7 +34,7 @@ public class Main {
 
 	public static void main(String[] args) throws ConnectorException, IOException {
 
-		CoapClient client = new CoapClient("coap://californium.eclipse.org:5683");
+		CoapClient client = new CoapClient("coap://californium.eclipseprojects.io:5683/");
 		//client.setURI(client.getURI() + "/test");
 		//CoapResponse response = client.get();
 		//
