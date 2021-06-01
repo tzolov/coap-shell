@@ -102,6 +102,8 @@ has expired. You will have to re-connect again.
 
 === IKEA TRÅDFRI Gateway Support
 
+https://github.com/glenndehaan/ikea-tradfri-coap-docs[Ikea Tradfri CoAP Docs]
+
 * Generate Gateway pre-share key
 Use the `ikea gateway key` to register a new account (e.g. identity + secret) to your IKEA Gateway:
 
@@ -123,9 +125,9 @@ server-unknown:>ikea gateway key --ip 192.168.178.150 --identity myIkeaGatewayId
 IDENTITY: myIkeaGatewayIdentity , PRE_SHARED_KEY: X5xyYM41qFS7vN10
 ----
 
-You can find the `security-code` value at the back of your Gateway box.
-The `192.168.178.150` is the IP address of the gateway in your network. You should find the IP of your IKEA gateway box and use it instead!
-The `myIkeaGatewayIdentity` is the new identity to be registered with the gateway. the `<Gateway Code Label>` is printed on the back side of the Gateway box.
+- You can find the `security-code` value at the back of your Gateway box.
+- The `192.168.178.150` is the IP address of the gateway in your network. You should find the IP of your IKEA gateway box and use it instead!
+- The `myIkeaGatewayIdentity` is the new identity to be registered with the gateway. the `<Gateway Code Label>` is printed on the back side of the Gateway box.
 
 The response `IDENTITY: myIkeaGatewayIdentity , PRE_SHARED_KEY: X5xyYM41qFS7vNa9` contains the new credential created for you.
 Store the generated identity and secret so you can use them to interact with your IKEA gateway.
