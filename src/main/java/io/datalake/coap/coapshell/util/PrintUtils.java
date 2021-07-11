@@ -27,6 +27,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.cbor.databind.CBORMapper;
 import org.eclipse.californium.core.CoapResponse;
 import org.eclipse.californium.core.coap.MediaTypeRegistry;
 import org.eclipse.californium.core.coap.Response;
@@ -36,7 +37,6 @@ import org.w3c.dom.Document;
 import org.springframework.boot.ansi.AnsiColor;
 import org.springframework.boot.ansi.AnsiOutput;
 import org.springframework.http.HttpStatus;
-import org.springframework.util.MimeTypeUtils;
 import org.springframework.util.StringUtils;
 
 /**
@@ -73,7 +73,7 @@ public class PrintUtils {
 		sb.append(String.format("Options: %s", r.getOptions().toString())).append(StringUtil.lineSeparator());
 		sb.append(String.format("Status : %s, Payload: %dB", status, r.getPayloadSize())).append(StringUtil.lineSeparator());
 		sb.append(green("................................... Payload ....................................")).append(StringUtil.lineSeparator());
-		if (r.getPayloadSize() > 0 && MediaTypeRegistry.isPrintable(r.getOptions().getContentFormat())) {
+		if (r.getPayloadSize() > 0) {
 			sb.append(prettyPayload(r)).append(StringUtil.lineSeparator());
 		}
 		sb.append(green("--------------------------------------------------------------------------------"));
@@ -81,18 +81,29 @@ public class PrintUtils {
 		return sb.toString();
 	}
 
-	public static String prettyPayload(Response r) {
-		if (r.getOptions().toString().contains(MimeTypeUtils.APPLICATION_JSON_VALUE)) {
-			return cyan(prettyJson(r.getPayloadString()));
+    public static String prettyPayload(Response r) {
+        int format = r.getOptions().getContentFormat();
+        String mimeType = MediaTypeRegistry.toString(format);
+
+        if (mimeType.contains("json")) {
+            return cyan(prettyJson(r.getPayloadString()));
+
+        } else if (mimeType.contains("cbor")) {
+            return cyan(prettyCbor(r.getPayload()));
+
+        } else if (mimeType.contains("xml")) {
+            return cyan(prettyXml(r.getPayloadString()));
+
+        } else if (format == MediaTypeRegistry.APPLICATION_LINK_FORMAT) {
+            return cyan(prettyLink(r.getPayloadString()));
+
+        } else if (MediaTypeRegistry.isPrintable(format)) {
+            return r.getPayloadString();
+
+        } else {
+			return prettyHexDump(r.getPayload());
 		}
-		else if (r.getOptions().toString().contains(MimeTypeUtils.APPLICATION_XML_VALUE)) {
-			return cyan(prettyXml(r.getPayloadString()));
-		}
-		else if (r.getOptions().toString().contains("application/link-format")) {
-			return cyan(prettyLink(r.getPayloadString()));
-		}
-		return r.getPayloadString();
-	}
+    }
 
 	private static String prettyJson(String text) {
 		try {
@@ -102,6 +113,19 @@ public class PrintUtils {
 		}
 		catch (IOException io) {
 			return text;
+		}
+	}
+
+	private static String prettyCbor(byte[] data) {
+		try {
+			ObjectMapper cborMapper = new CBORMapper();
+			Object cborObject = cborMapper.readValue(data, Object.class);
+
+			ObjectMapper jsonMapper = new ObjectMapper();
+			return jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(cborObject);
+		}
+		catch (IOException io) {
+			return prettyHexDump(data);
 		}
 	}
 
@@ -135,6 +159,72 @@ public class PrintUtils {
 			return text;
 		}
 	}
+
+	private static String prettyHexDump(byte[] data) {
+		StringBuilder sb = new StringBuilder();
+		int groupBytes = 8;
+		int rowBytes = groupBytes * 2;
+
+		// Header
+		sb.append("        ");
+		// Header for hexadecimal version
+		for (int i = 0; i < rowBytes; i++) {
+			if ((i % groupBytes) == 0) {
+				sb.append(" ");
+			}
+			sb.append(String.format("%01X  ", (i & 0x0f)));
+		}
+		sb.append("    ");
+		// Header for ASCII version
+		for (int i = 0; i < rowBytes; i++) {
+			sb.append(String.format("%01X", (i & 0x0f)));
+		}
+		sb.append(StringUtil.lineSeparator());
+
+		// Data
+		for (int rowStartIndex = 0; rowStartIndex < data.length; rowStartIndex += rowBytes) {
+			sb.append(String.format("0x%04X: ", rowStartIndex));
+
+			// Hexadecimal version
+			for (int i = 0; i < rowBytes; i++) {
+				if ((i % groupBytes) == 0) {
+					sb.append(' ');
+				}
+				int byteIndex = rowStartIndex+i;
+				if (byteIndex < data.length) {
+					sb.append(String.format("%02X ", data[byteIndex]));
+				} else {
+					sb.append("   ");
+				}
+			}
+
+			// ASCII version
+			sb.append("   |");
+			for (int i = 0; i < rowBytes; i++) {
+				byte b = 0;
+				int byteIndex = rowStartIndex+i;
+				if (byteIndex < data.length) {
+					b = data[byteIndex];
+				}
+				if (b > 32 && b < 127) {
+					sb.append((char) b);
+				} else {
+					sb.append(' ');
+				}
+			}
+			sb.append('|');
+			sb.append(StringUtil.lineSeparator());
+		}
+
+		// Remove extra newline
+		sb.deleteCharAt(sb.length()-1);
+
+		return sb.toString();
+	}
+
+
+
+
 
 	public static String cyan(String text) {
 		return colorText(text, AnsiColor.CYAN);
