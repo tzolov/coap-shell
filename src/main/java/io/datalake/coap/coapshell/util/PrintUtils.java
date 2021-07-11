@@ -27,6 +27,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.cbor.databind.CBORMapper;
 import org.eclipse.californium.core.CoapResponse;
 import org.eclipse.californium.core.coap.MediaTypeRegistry;
 import org.eclipse.californium.core.coap.Response;
@@ -85,6 +86,9 @@ public class PrintUtils {
 		if (r.getOptions().toString().contains(MimeTypeUtils.APPLICATION_JSON_VALUE)) {
 			return cyan(prettyJson(r.getPayloadString()));
 		}
+		else if (r.getOptions().toString().contains("application/cbor")) {
+			return cyan(prettyCbor(r.getPayload()));
+		}
 		else if (r.getOptions().toString().contains(MimeTypeUtils.APPLICATION_XML_VALUE)) {
 			return cyan(prettyXml(r.getPayloadString()));
 		}
@@ -105,6 +109,19 @@ public class PrintUtils {
 		}
 		catch (IOException io) {
 			return text;
+		}
+	}
+
+	private static String prettyCbor(byte[] data) {
+		try {
+			ObjectMapper cborMapper = new CBORMapper();
+			Object cborObject = cborMapper.readValue(data, Object.class);
+
+			ObjectMapper jsonMapper = new ObjectMapper();
+			return jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(cborObject);
+		}
+		catch (IOException io) {
+			return prettyHexDump(data);
 		}
 	}
 
