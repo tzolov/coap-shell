@@ -37,7 +37,6 @@ import org.w3c.dom.Document;
 import org.springframework.boot.ansi.AnsiColor;
 import org.springframework.boot.ansi.AnsiOutput;
 import org.springframework.http.HttpStatus;
-import org.springframework.util.MimeTypeUtils;
 import org.springframework.util.StringUtils;
 
 /**
@@ -82,24 +81,29 @@ public class PrintUtils {
 		return sb.toString();
 	}
 
-	public static String prettyPayload(Response r) {
-		if (r.getOptions().toString().contains(MimeTypeUtils.APPLICATION_JSON_VALUE)) {
-			return cyan(prettyJson(r.getPayloadString()));
+    public static String prettyPayload(Response r) {
+        int format = r.getOptions().getContentFormat();
+        String mimeType = MediaTypeRegistry.toString(format);
+
+        if (mimeType.contains("json")) {
+            return cyan(prettyJson(r.getPayloadString()));
+
+        } else if (mimeType.contains("cbor")) {
+            return cyan(prettyCbor(r.getPayload()));
+
+        } else if (mimeType.contains("xml")) {
+            return cyan(prettyXml(r.getPayloadString()));
+
+        } else if (format == MediaTypeRegistry.APPLICATION_LINK_FORMAT) {
+            return cyan(prettyLink(r.getPayloadString()));
+
+        } else if (MediaTypeRegistry.isPrintable(format)) {
+            return r.getPayloadString();
+
+        } else {
+			return prettyHexDump(r.getPayload());
 		}
-		else if (r.getOptions().toString().contains("application/cbor")) {
-			return cyan(prettyCbor(r.getPayload()));
-		}
-		else if (r.getOptions().toString().contains(MimeTypeUtils.APPLICATION_XML_VALUE)) {
-			return cyan(prettyXml(r.getPayloadString()));
-		}
-		else if (r.getOptions().toString().contains("application/link-format")) {
-			return cyan(prettyLink(r.getPayloadString()));
-		}
-		else if (MediaTypeRegistry.isPrintable(r.getOptions().getContentFormat())) {
-			return r.getPayloadString();
-		}
-		return prettyHexDump(r.getPayload());
-	}
+    }
 
 	private static String prettyJson(String text) {
 		try {
